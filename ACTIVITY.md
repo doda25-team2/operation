@@ -14,6 +14,6 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Miguel [02b7a6b](https://github.com/doda25-team2/model-service/commit/02b7a6b839b5ddc210a2d70867e860a4297fe384), In the model-service repository: refactored the code to remove hard-coded model and preprocessor paths, introduced environment variables and default download URLs from GitHub Releases. 
 [800cfab](https://github.com/doda25-team2/app/commit/800cfab0db8cb48fe87d65cdde467eff2d395d14), In the app repository: updated container configuration to support flexible environment variables, modified the controller to read the model service URL dynamically instead of using a fixed host.
-[]
+[80428da](https://github.com/doda25-team2/model-service/commit/02b7a6b839b5ddc210a2d70867e860a4297fe384), In operation repository did a simple docker compose to launch the entire system from one base docker-compose.yml.
 
 - Preethika: [model-service#7](https://github.com/doda25-team2/model-service/pull/7), [model-service#6](https://github.com/doda25-team2/model-service/pull/6)
