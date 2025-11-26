@@ -36,3 +36,21 @@
         path: /etc/fstab
         regexp: 'swap'
         state: absent
+
+    - name: for net.ipv4.ip_forward
+      ansible.builtin.sysctl:
+        name: net.ipv4.ip_forward
+        state: present
+        sysctl_set: yes
+
+    - name: for net.bridge.bridge-nf-call-iptables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        state: present
+        sysctl_set: yes
+
+    - name: for net.bridge.bridge-nf-call-ip6tables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        state: present
+        sysctl_set: yes
