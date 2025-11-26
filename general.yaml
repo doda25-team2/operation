@@ -34,3 +34,5 @@
     - name: swap entry remove
       ansible.builtin.lineinfile:
         path: /etc/fstab
+        regexp: 'swap'
+        state: absent
