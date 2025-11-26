@@ -1,7 +1,7 @@
 VAGRANT_BOX        = "bento/ubuntu-24.04"
 CTRL_IP            = "192.168.56.100"
 WORKER_IP_BASE     = "192.168.56."
-WORKER_COUNT       = 1        
+WORKER_COUNT       = 2      
 
 CTRL_CPUS          = 1
 CTRL_MEMORY_MB     = 4096     
