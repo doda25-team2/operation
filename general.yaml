@@ -27,3 +27,10 @@
         key: "{{ lookup('file', item) }}"
       with_fileglob:
         - "{{ ssh_keys_dir }}/*.pub"
+
+    - name: swap for running system
+      ansible.builtin.shell: swapoff -a
+
+    - name: swap entry remove
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
