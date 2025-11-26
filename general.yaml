@@ -1,0 +1,29 @@
+---
+- hosts: all
+  become: true
+  vars:
+    ssh_keys_dir: "./ssh-keys"  
+  tasks:
+    - name: check if directory is there
+      ansible.builtin.file:
+        path: /home/vagrant/.ssh
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0700'
+
+    - name: check if keys exist
+      ansible.builtin.file:
+        path: /home/vagrant/.ssh/authorized_keys
+        owner: vagrant
+        group: vagrant
+        mode: '0600'
+        state: touch
+
+    - name: Add 
+      ansible.posix.authorized_key:
+        user: vagrant
+        state: present
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - "{{ ssh_keys_dir }}/*.pub"

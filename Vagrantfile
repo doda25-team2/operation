@@ -42,4 +42,28 @@ Vagrant.configure("2") do |config|
       end
     end
   end
+  # general.yaml
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "general.yaml"
+    ansible.become = true
+    ansible.install = true
+    ansible.extra_vars = { worker_count: WORKER_COUNT }
+  end
+
+  # ctrl.yaml
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ctrl.yaml"
+    ansible.limit = "ctrl"
+    ansible.become = true
+    ansible.install = true
+
+  end
+
+  # node.yaml
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "node.yaml"
+    ansible.limit = "node-*"
+    ansible.become = true
+    ansible.install = true
+  end
 end
