@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "general.yaml"
     ansible.become = true
-    ansible.extra_vars = { worker_count: WORKER_COUNT }
+    ansible.extra_vars = { worker_count: WORKER_COUNT, ctrl_ip: CTRL_IP, worker_ip_base: WORKER_IP_BASE }
   end
 
   # ctrl.yaml

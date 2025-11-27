@@ -54,3 +54,14 @@
         name: net.bridge.bridge-nf-call-ip6tables
         state: present
         sysctl_set: yes
+
+    - name: cluster hostnames step 8
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        backup: yes
+        block: |
+          {{ ctrl_ip }} ctrl
+          {% for i in range(1, worker_count + 1) %}
+          {{ worker_ip_base }}{{ 100 + i }} node-{{ i }}
+          {% endfor %}
