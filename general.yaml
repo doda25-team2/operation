@@ -29,8 +29,20 @@
       with_fileglob:
         - "{{ ssh_keys_dir }}/*.pub"
 
-    - name: swap for running system
-      ansible.builtin.shell: swapoff -a
+  - name: Disable swap
+    command: swapoff -a
+
+  - name: Remove swap from fstab
+    lineinfile:
+      path: /etc/fstab
+      regexp: '^.*swap.*$'
+      state: absent
+
+  - name: Ensure swap is disabled with mount module
+    mount:
+      name: swap
+      fstype: swap
+      state: absent
 
     - name: swap entry remove
       ansible.builtin.lineinfile:
