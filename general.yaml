@@ -1,8 +1,9 @@
 ---
 - hosts: all
+  connection: local
   become: true
   vars:
-    ssh_keys_dir: "./ssh-keys"
+    ssh_keys_dir: "/vagrant/ssh-keys"  # Changed from ./ssh-keys
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
@@ -29,10 +30,21 @@
         - "{{ ssh_keys_dir }}/*.pub"
 
     - name: Disable swap
-      ansible.builtin.command: swapoff -a
-      when: ansible_swaptotal_mb | default(0) > 0
+      command: swapoff -a
 
     - name: Remove swap from fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: '^.*swap.*$'
+        state: absent
+
+    - name: Ensure swap is disabled with mount module
+      mount:
+        name: swap
+        fstype: swap
+        state: absent       
+
+    - name: swap entry remove
       ansible.builtin.lineinfile:
         path: /etc/fstab
         regexp: '^.*swap.*$'
@@ -99,20 +111,27 @@
         block: "{{ lookup('file', '/tmp/hosts_block') }}"
         backup: yes
 
-    - name: Ensure apt keyrings directory exists
+    - name: Ensure keyring directory exists
       ansible.builtin.file:
-        path: /etc/apt/keyrings
+        path: /usr/share/keyrings
         state: directory
-        owner: root
-        group: root
         mode: '0755'
 
-    - name: Download Kubernetes apt repository key
-      ansible.builtin.get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
-        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    - name: Remove old Kubernetes keyring if exists
+      ansible.builtin.file:
+        path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+        state: absent
+
+    - name: Add Kubernetes apt key
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Set correct permissions on keyring
+      ansible.builtin.file:
+        path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
         mode: '0644'
-      register: kubernetes_repo_key
+        owner: root
+        group: root
 
     - name: Inspect existing Kubernetes apt keyring
       ansible.builtin.stat:
@@ -133,7 +152,7 @@
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /"
+        repo: "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.34/deb/ /"
         state: present
         filename: kubernetes
 
@@ -142,7 +161,7 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install container runtime packages
+    - name: Install containerd and runc
       ansible.builtin.apt:
         name:
           - containerd
@@ -155,4 +174,53 @@
           - kubeadm
           - kubelet
           - kubectl
-        state: present
+
+    - name: Ensure containerd config directory exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: "0755"
+
+    - name: Generate default containerd configuration
+      ansible.builtin.command: containerd config default
+      register: containerd_default
+      changed_when: false
+
+    - name: Write base containerd config
+      ansible.builtin.copy:
+        dest: /etc/containerd/config.toml
+        mode: "0644"
+        content: "{{ containerd_default.stdout }}"
+
+    - name: Disable AppArmor in containerd config
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*disable_apparmor\s*=\s*false'
+        line: '    disable_apparmor = true'
+        backrefs: yes
+
+    - name: Set pause sandbox image to registry.k8s.io/pause:3.10
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*sandbox_image\s*=\s*".*"'
+        line: '    sandbox_image = "registry.k8s.io/pause:3.10"'
+        backrefs: yes
+
+    - name: Enable SystemdCgroup in containerd
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^\s*SystemdCgroup\s*=\s*false'
+        line: '            SystemdCgroup = true'
+        backrefs: yes
+
+    - name: Restart containerd with new configuration
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+    - name: Ensure kubelet is enabled and started
+      service:
+        name: kubelet
+        state: started
+        enabled: yes
