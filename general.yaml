@@ -68,17 +68,31 @@
 
     #step 9:
 
-    #step 10 - install required 
+    - name: Kubernetes apt key
+      ansible.builtin.apt_key:
+        url: https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key
+        state: present
+
+    - name: Kubernetes repo
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /"
+        state: present
+
+    - name: apt cache update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    #step 10 - install required (removed version due to issues for now)
     - name: Install containerd and runc
       ansible.builtin.apt:
         name:
-          - containerd=1.7.24*
-          - runc=1.1.12*
+          - containerd
+          - runc
 
     - name: Install Kubernetes tools
       ansible.builtin.apt:
         name:
-          - kubeadm=1.32.4*
-          - kubelet=1.32.4*
-          - kubectl=1.32.4*
+          - kubeadm
+          - kubelet
+          - kubectl
           
