@@ -4,6 +4,7 @@
   vars:
     ssh_keys_dir: "./ssh-keys"  
   tasks:
+
     - name: check if directory is there
       ansible.builtin.file:
         path: /home/vagrant/.ssh
@@ -20,7 +21,7 @@
         mode: '0600'
         state: touch
 
-    - name: Add 
+    - name: Add
       ansible.posix.authorized_key:
         user: vagrant
         state: present
@@ -36,3 +37,53 @@
         path: /etc/fstab
         regexp: 'swap'
         state: absent
+
+    - name: Write kernel modules config
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+
+    - name: Load overlay module
+      ansible.builtin.modprobe:
+        name: overlay
+        state: present
+
+    - name: Load br_netfilter module
+      ansible.builtin.modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: Enable IPv4 forwarding
+      ansible.builtin.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable bridged iptables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable bridged ip6tables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Render hosts template
+      ansible.builtin.template:
+        src: /vagrant/ansible/templates/hosts_block.j2
+        dest: /tmp/hosts_block
+
+    - name: Insert hosts block
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        block: "{{ lookup('file', '/tmp/hosts_block') }}"
+        backup: yes
