@@ -149,7 +149,7 @@
           - runc
         state: present
 
-    - name: Install Kubernetes node tools
+    - name: Install Kubernetes tools
       ansible.builtin.apt:
         name:
           - kubeadm
