@@ -8,3 +8,10 @@ admin.conf
 
 # Temporary files
 tmp*
+
+# Kubernetes admin config (should NEVER be committed)
+admin.conf
+*.kube/config
+**/admin.conf
+.vagrant/
+
