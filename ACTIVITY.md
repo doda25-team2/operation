@@ -27,3 +27,5 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Ayush [operation#18](https://github.com/doda25-team2/operation/pull/18), [operation#20](https://github.com/doda25-team2/operation/pull/20), [operation#22](https://github.com/doda25-team2/operation/pull/22), [operation#25](https://github.com/doda25-team2/operation/pull/25) 
 
 - George [#24](https://github.com/doda25-team2/operation/pull/24), [#27](https://github.com/doda25-team2/operation/pull/27), [8f1e1a6](https://github.com/doda25-team2/operation/commit/8f1e1a6a6afab03e071fcffc18ca47242c775a56) → Rebased and resolved conflicts on the Step 6 and Step 9/10 feature branches, verified Vagrant provisioning (`ctrl`, `node-1`), then fast-forward merged both PRs into `main`. Followed up by removing committed kubeconfig secrets and extending `.gitignore` so future `kubeadm init` artefacts stay out of version control.
+
+- Nick [operation#34](https://github.com/doda25-team2/operation/pull/34)
