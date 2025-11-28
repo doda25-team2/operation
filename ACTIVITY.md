@@ -23,3 +23,6 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 ### Q1.2 (Nov 21 - Nov 28th)
 
 - Miguel [bfcf924](https://github.com/doda25-team2/operation/pull/24), [a54f03c](https://github.com/doda25-team2/operation/pull/23), [da3d3df](https://github.com/doda25-team2/operation/pull/17)
+
+- Ayush [operation#18](https://github.com/doda25-team2/operation/pull/18), [operation#20](https://github.com/doda25-team2/operation/pull/20), [operation#22](https://github.com/doda25-team2/operation/pull/22), [operation#25](https://github.com/doda25-team2/operation/pull/25) 
+
