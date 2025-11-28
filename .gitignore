@@ -1,3 +1,10 @@
 # Ignore Vagrant state
 .vagrant
 .vagrant/
+
+# Kubernetes configs (contain sensitive cluster certificates)
+admin.conf
+*.conf
+
+# Temporary files
+tmp*
