@@ -63,3 +63,36 @@
       modprobe:
         name: br_netfilter
         state: present
+
+    - name: Enable IPv4 forwarding
+      ansible.builtin.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable bridged iptables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Enable bridged ip6tables
+      ansible.builtin.sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: '1'
+        state: present
+        reload: yes
+
+    - name: Render hosts template
+      ansible.builtin.template:
+        src: /vagrant/ansible/templates/hosts_block.j2
+        dest: /tmp/hosts_block
+
+    - name: Insert hosts block
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        block: "{{ lookup('file', '/tmp/hosts_block') }}"
+        backup: yes
