@@ -3,7 +3,7 @@
   connection: local
   become: true
   vars:
-    ssh_keys_dir: "/vagrant/ssh-keys"  # Changed from ./ssh-keys
+    ssh_keys_dir: "/vagrant/ssh-keys"
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
@@ -39,22 +39,11 @@
         state: absent
 
     - name: Ensure swap is disabled with mount module
-      mount:
+      ansible.builtin.mount:
         name: swap
         fstype: swap
         state: absent       
 
-    - name: swap entry remove
-      ansible.builtin.lineinfile:
-        path: /etc/fstab
-        regexp: '^.*swap.*$'
-        state: absent
-
-    - name: Ensure swap is disabled with mount module
-      ansible.builtin.mount:
-        name: swap
-        fstype: swap
-        state: absent
     - name: Ensure Kubernetes kernel modules are configured to load at boot
       ansible.builtin.copy:
         dest: /etc/modules-load.d/k8s.conf
@@ -111,6 +100,9 @@
         block: "{{ lookup('file', '/tmp/hosts_block') }}"
         backup: yes
 
+    # ----------------------------
+    # Kubernetes key & repository
+    # ----------------------------
     - name: Ensure keyring directory exists
       ansible.builtin.file:
         path: /usr/share/keyrings
@@ -122,21 +114,11 @@
         path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
         state: absent
 
-    - name: Add Kubernetes apt key
-      ansible.builtin.shell:
-        cmd: curl -fsSL https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
-
-    - name: Set correct permissions on keyring
-      ansible.builtin.file:
-        path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+    - name: Download Kubernetes apt key
+      ansible.builtin.get_url:
+        url: https://prod-cdn.packages.k8s.io/repositories/isv:/kubernetes:/core:/stable:/v1.34/deb/Release.key
+        dest: /usr/share/keyrings/kubernetes-apt-keyring.asc
         mode: '0644'
-        owner: root
-        group: root
-
-    - name: Inspect existing Kubernetes apt keyring
-      ansible.builtin.stat:
-        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-      register: kubernetes_keyring_stat
 
     - name: Convert Kubernetes apt key to keyring format
       ansible.builtin.command:
@@ -145,10 +127,18 @@
           - --dearmor
           - --yes
           - -o
-          - /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-          - /etc/apt/keyrings/kubernetes-apt-keyring.asc
-      when: kubernetes_repo_key.changed or not kubernetes_keyring_stat.stat.exists
-      changed_when: kubernetes_repo_key.changed or not kubernetes_keyring_stat.stat.exists
+          - /usr/share/keyrings/kubernetes-apt-keyring.gpg
+          - /usr/share/keyrings/kubernetes-apt-keyring.asc
+      args:
+        creates: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+      changed_when: false
+
+    - name: Set permissions on Kubernetes keyring
+      ansible.builtin.file:
+        path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
@@ -156,11 +146,14 @@
         state: present
         filename: kubernetes
 
-    - name: Update apt cache after adding Kubernetes repository
+    - name: Update apt cache
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
 
+    # ----------------------------
+    # Container runtime and Kubernetes tools
+    # ----------------------------
     - name: Install containerd and runc
       ansible.builtin.apt:
         name:
@@ -174,6 +167,7 @@
           - kubeadm
           - kubelet
           - kubectl
+        state: present
 
     - name: Ensure containerd config directory exists
       ansible.builtin.file:
