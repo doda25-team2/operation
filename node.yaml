@@ -8,31 +8,12 @@
         path: /etc/kubernetes/kubelet.conf
       register: kubelet_conf
 
-    - name: Wait for ctrl SSH to be ready
-      wait_for:
-        host: "{{ ctrl_ip }}"
-        port: 22
-        timeout: 300
-      when: not kubelet_conf.stat.exists
-
-    - name: Test SSH connection to ctrl
-      command: ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 vagrant@{{ ctrl_ip }} echo "connected"
-      register: ssh_test
-      changed_when: false
-      failed_when: false
-      when: not kubelet_conf.stat.exists
-
-    - name: Debug SSH test result
-      debug:
-        var: ssh_test
-      when: not kubelet_conf.stat.exists
-
     - name: Generate join command on controller
-      shell: ssh -o StrictHostKeyChecking=no vagrant@{{ ctrl_ip }} "sudo kubeadm token create --print-join-command"
+      command: kubeadm token create --print-join-command
+      delegate_to: ctrl
+      run_once: true
       register: join_cmd
-      when: 
-        - not kubelet_conf.stat.exists
-        - ssh_test.rc == 0
+      when: not kubelet_conf.stat.exists
       changed_when: false
 
     - name: Join node to Kubernetes cluster
