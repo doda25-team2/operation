@@ -2,10 +2,9 @@
 - hosts: all
   become: true
   vars:
-    ssh_keys_dir: "./ssh-keys"  
+    ssh_keys_dir: "./ssh-keys"
   tasks:
-
-    - name: check if directory is there
+    - name: Ensure .ssh directory exists
       ansible.builtin.file:
         path: /home/vagrant/.ssh
         state: directory
@@ -13,7 +12,7 @@
         group: vagrant
         mode: '0700'
 
-    - name: check if keys exist
+    - name: Ensure authorized_keys file exists
       ansible.builtin.file:
         path: /home/vagrant/.ssh/authorized_keys
         owner: vagrant
@@ -21,7 +20,7 @@
         mode: '0600'
         state: touch
 
-    - name: Add
+    - name: Add SSH public keys from shared folder
       ansible.posix.authorized_key:
         user: vagrant
         state: present
@@ -29,41 +28,39 @@
       with_fileglob:
         - "{{ ssh_keys_dir }}/*.pub"
 
-  - name: Disable swap
-    command: swapoff -a
+    - name: Disable swap
+      ansible.builtin.command: swapoff -a
+      when: ansible_swaptotal_mb | default(0) > 0
 
-  - name: Remove swap from fstab
-    lineinfile:
-      path: /etc/fstab
-      regexp: '^.*swap.*$'
-      state: absent
-
-  - name: Ensure swap is disabled with mount module
-    mount:
-      name: swap
-      fstype: swap
-      state: absent
-
-    - name: swap entry remove
+    - name: Remove swap from fstab
       ansible.builtin.lineinfile:
         path: /etc/fstab
-        regexp: 'swap'
+        regexp: '^.*swap.*$'
         state: absent
 
-    - name: Write kernel modules config
+    - name: Ensure swap is disabled with mount module
+      ansible.builtin.mount:
+        name: swap
+        fstype: swap
+        state: absent
+
+    - name: Ensure Kubernetes kernel modules are configured to load at boot
       ansible.builtin.copy:
         dest: /etc/modules-load.d/k8s.conf
         content: |
           overlay
           br_netfilter
+        owner: root
+        group: root
+        mode: '0644'
 
-    - name: Load overlay module
-      ansible.builtin.modprobe:
+    - name: Ensure overlay kernel module is loaded
+      modprobe:
         name: overlay
         state: present
 
-    - name: Load br_netfilter module
-      ansible.builtin.modprobe:
+    - name: Ensure br_netfilter kernel module is loaded
+      modprobe:
         name: br_netfilter
         state: present
 
