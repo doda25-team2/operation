@@ -1,4 +1,70 @@
 ---
-- hosts: ctrl
+- hosts: all
+  connection: local
   become: true
-  tasks: []
+  tasks:
+    - name: Check if kubeadm already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: kubeinit
+
+    - name: Run kubeadm init
+      command: >
+        kubeadm init
+        --apiserver-advertise-address={{ ctrl_ip }}
+        --node-name ctrl
+        --pod-network-cidr=10.244.0.0/16
+      when: not kubeinit.stat.exists
+
+    - name: Ensure .kube directory exists for vagrant
+      file:
+        path: /home/vagrant/.kube
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: "0755"
+
+    - name: Copy admin.conf to vagrant user
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: /home/vagrant/.kube/config
+        owner: vagrant
+        group: vagrant
+        mode: "0600"
+
+    - name: Copy admin.conf to host shared folder
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: /vagrant/admin.conf
+        mode: "0644"
+
+    - name: Download Flannel manifest
+      get_url:
+        url: https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+        dest: /tmp/kube-flannel.yml
+
+    - name: Patch Flannel DaemonSet to use eth1
+      replace:
+        path: /tmp/kube-flannel.yml
+        regexp: '--iface=.*'
+        replace: '--iface=eth1'
+
+    - name: Apply Flannel network
+      command: kubectl apply -f /tmp/kube-flannel.yml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Install Helm via official script
+      shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        executable: /bin/bash
+      when: not kubeinit.stat.exists
+
+    - name: Install helm-diff plugin
+      become_user: vagrant
+      shell: helm plugin install https://github.com/databus23/helm-diff || true
+      args:
+        executable: /bin/bash
+      when: not kubeinit.stat.exists

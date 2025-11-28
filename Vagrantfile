@@ -3,7 +3,7 @@ CTRL_IP            = "192.168.56.100"
 WORKER_IP_BASE     = "192.168.56."
 WORKER_COUNT       = 2      
 
-CTRL_CPUS          = 1
+CTRL_CPUS          = 2
 CTRL_MEMORY_MB     = 4096     
 
 WORKER_CPUS        = 2
@@ -38,6 +38,9 @@ Vagrant.configure("2") do |config|
       ansible.install = true
       ansible.become  = true
       ansible.playbook = "/vagrant/ctrl.yaml"
+      ansible.extra_vars = {
+        ctrl_ip: CTRL_IP
+      }
     end
   end
 
