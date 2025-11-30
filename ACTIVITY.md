@@ -30,5 +30,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Nick [operation#34](https://github.com/doda25-team2/operation/pull/34)
 
+- Justin [#27](https://github.com/doda25-team2/operation/pull/27), [#32](https://github.com/doda25-team2/operation/pull/32/files)  , [#37](https://github.com/doda25-team2/operation/pull/37) → resolve merge conflicts and get step 11 and 12 ready for merge, refactor and streamline the `Vagrantfile` a few times - dropping the use of `ansible_local` in favor of host driven `ansible`.
+
 - Preethika [operation#26](https://github.com/doda25-team2/operation/pull/26),
 [operation#21](https://github.com/doda25-team2/operation/pull/21)
