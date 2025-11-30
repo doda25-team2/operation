@@ -1,6 +1,5 @@
 ---
 - hosts: all
-  connection: local
   become: true
   tasks:
     - name: Check if node already joined cluster
@@ -19,7 +18,7 @@
 
     - name: Copy ctrl's private key to node
       copy:
-        src: /vagrant/ctrl_id_ed25519
+        src: ctrl_id_ed25519
         dest: /home/vagrant/.ssh/id_ed25519
         owner: vagrant
         group: vagrant
@@ -28,7 +27,7 @@
 
     - name: Copy ctrl's public key to node
       copy:
-        src: /vagrant/ctrl_id_ed25519.pub
+        src: ctrl_id_ed25519.pub
         dest: /home/vagrant/.ssh/id_ed25519.pub
         owner: vagrant
         group: vagrant

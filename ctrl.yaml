@@ -1,6 +1,5 @@
 ---
 - hosts: all
-  connection: local
   become: true
   tasks:
     - name: Check if kubeadm already initialized
@@ -75,23 +74,28 @@
       args:
         creates: /home/vagrant/.ssh/id_ed25519
 
+    - name: Read ctrl's public key
+      slurp:
+        src: /home/vagrant/.ssh/id_ed25519.pub
+      register: ctrl_pubkey
+
     - name: Add ctrl's own public key to authorized_keys
       become_user: vagrant
       ansible.posix.authorized_key:
         user: vagrant
         state: present
-        key: "{{ lookup('file', '/home/vagrant/.ssh/id_ed25519.pub') }}"
+        key: "{{ ctrl_pubkey.content | b64decode }}"
 
     - name: Copy ctrl private key to shared folder
       copy:
         remote_src: yes
         src: /home/vagrant/.ssh/id_ed25519
-        dest: /vagrant/ctrl_id_ed25519
+        dest: ctrl_id_ed25519
         mode: '0600'
 
     - name: Copy ctrl public key to shared folder
       copy:
         remote_src: yes
         src: /home/vagrant/.ssh/id_ed25519.pub
-        dest: /vagrant/ctrl_id_ed25519.pub
+        dest: ctrl_id_ed25519.pub
         mode: '0644'
