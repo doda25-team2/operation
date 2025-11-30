@@ -59,6 +59,7 @@ Vagrant.configure("2") do |config|
         ansible.extra_vars = {
           worker_count: WORKER_COUNT,
           ctrl_ip: CTRL_IP,
+          ctrl_hostname: "ctrl",
           worker_ip_base: WORKER_IP_BASE
         }
       end
