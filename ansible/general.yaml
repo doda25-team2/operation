@@ -89,7 +89,7 @@
 
     - name: Insert hosts block
       ansible.builtin.template:
-        src: ansible/templates/hosts_block.j2
+        src: ./templates/hosts_block.j2
         dest: /etc/hosts
         owner: root
         group: root

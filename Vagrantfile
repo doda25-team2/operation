@@ -14,10 +14,10 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant"
 
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "general.yaml"
+    ansible.playbook = "./ansible/general.yaml"
     ansible.extra_vars = {
-      worker_count: WORKER_COUNT,
       ctrl_ip: CTRL_IP,
+      worker_count: WORKER_COUNT,
       worker_ip_base: WORKER_IP_BASE
     }
   end
@@ -33,11 +33,9 @@ Vagrant.configure("2") do |config|
     end
 
     node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "ctrl.yaml"
+      ansible.playbook = "./ansible/ctrl.yaml"
       ansible.extra_vars = {
-        worker_count: WORKER_COUNT,
         ctrl_ip: CTRL_IP,
-        worker_ip_base: WORKER_IP_BASE
       }
     end
   end
@@ -55,12 +53,9 @@ Vagrant.configure("2") do |config|
       end
 
       node.vm.provision "ansible" do |ansible|
-        ansible.playbook = "node.yaml"
+        ansible.playbook = "./ansible/node.yaml"
         ansible.extra_vars = {
-          worker_count: WORKER_COUNT,
-          ctrl_ip: CTRL_IP,
           ctrl_hostname: "ctrl",
-          worker_ip_base: WORKER_IP_BASE
         }
       end
     end
