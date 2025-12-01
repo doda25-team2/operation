@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   vars:
-    ssh_keys_dir: "./ssh-keys"
+    ssh_keys_dir: "../ssh-keys"
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
