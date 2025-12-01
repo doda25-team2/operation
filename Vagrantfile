@@ -1,16 +1,18 @@
-VAGRANT_BOX        = "bento/ubuntu-24.04"
-CTRL_IP            = "192.168.56.100"
-WORKER_IP_BASE     = "192.168.56."
-WORKER_COUNT       = 2      
+VAGRANT_BOX         = "bento/ubuntu-24.04"
+VAGRANT_BOX_VERSION = "202510.26.0"
+CTRL_IP             = "192.168.56.100"
+WORKER_IP_BASE      = "192.168.56."
+WORKER_COUNT        = 2      
 
-CTRL_CPUS          = 2
-CTRL_MEMORY_MB     = 4096     
+CTRL_CPUS           = 2
+CTRL_MEMORY_MB      = 4096     
 
-WORKER_CPUS        = 2
-WORKER_MEMORY_MB   = 6144      
+WORKER_CPUS         = 2
+WORKER_MEMORY_MB    = 6144      
 
 Vagrant.configure("2") do |config|
   config.vm.box = VAGRANT_BOX
+  config.vm.box_version = VAGRANT_BOX_VERSION
   config.vm.synced_folder ".", "/vagrant"
 
   config.vm.provision "ansible_local" do |ansible|
