@@ -15,13 +15,11 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = VAGRANT_BOX_VERSION
   config.vm.synced_folder ".", "/vagrant"
 
-  config.vm.provision "ansible_local" do |ansible|
-    ansible.install = true
-    ansible.become  = true
-    ansible.playbook = "/vagrant/general.yaml"
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "./ansible/general.yaml"
     ansible.extra_vars = {
-      worker_count: WORKER_COUNT,
       ctrl_ip: CTRL_IP,
+      worker_count: WORKER_COUNT,
       worker_ip_base: WORKER_IP_BASE
     }
   end
@@ -36,12 +34,10 @@ Vagrant.configure("2") do |config|
       vb.memory = CTRL_MEMORY_MB
     end
 
-    node.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "/vagrant/ctrl.yaml"
+    node.vm.provision "ansible" do |ansible|
+      ansible.playbook = "./ansible/ctrl.yaml"
       ansible.extra_vars = {
-        worker_count: WORKER_COUNT,
         ctrl_ip: CTRL_IP,
-        worker_ip_base: WORKER_IP_BASE
       }
     end
   end
@@ -58,12 +54,10 @@ Vagrant.configure("2") do |config|
         vb.memory = WORKER_MEMORY_MB
       end
 
-      node.vm.provision "ansible_local" do |ansible|
-        ansible.playbook = "/vagrant/node.yaml"
+      node.vm.provision "ansible" do |ansible|
+        ansible.playbook = "./ansible/node.yaml"
         ansible.extra_vars = {
-          worker_count: WORKER_COUNT,
-          ctrl_ip: CTRL_IP,
-          worker_ip_base: WORKER_IP_BASE
+          ctrl_hostname: "ctrl",
         }
       end
     end

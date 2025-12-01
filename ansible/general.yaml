@@ -1,9 +1,8 @@
 ---
 - hosts: all
-  connection: local
   become: true
   vars:
-    ssh_keys_dir: "/vagrant/ssh-keys"
+    ssh_keys_dir: "../ssh-keys"
   tasks:
     - name: Ensure .ssh directory exists
       ansible.builtin.file:
@@ -88,17 +87,13 @@
         reload: yes
         sysctl_set: yes
 
-    - name: Render hosts template
-      ansible.builtin.template:
-        src: /vagrant/ansible/templates/hosts_block.j2
-        dest: /tmp/hosts_block
-
     - name: Insert hosts block
-      ansible.builtin.blockinfile:
-        path: /etc/hosts
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        block: "{{ lookup('file', '/tmp/hosts_block') }}"
-        backup: yes
+      ansible.builtin.template:
+        src: ./templates/hosts_block.j2
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: '0644'
 
     # ----------------------------
     # Kubernetes key & repository

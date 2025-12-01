@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Check if node already joined cluster
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: Generate join command on controller
+      command: kubeadm token create --print-join-command
+      delegate_to: "{{ ctrl_hostname }}"
+      run_once: true
+      register: join_cmd
+
+    - name: Join node to Kubernetes cluster
+      command: "{{ join_cmd.stdout }}"
+      when: 
+        - not kubelet_conf.stat.exists
+        - join_cmd.stdout is defined
+        - join_cmd.stdout | length > 0
