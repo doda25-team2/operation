@@ -5,8 +5,16 @@
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
+tests:
+  enabled: false
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
+  model:
+    repository: ghcr.io/doda25-team2/model-service
+    tag: latest
+  app:
+    repository: ghcr.io/doda25-team2/app
+    tag: latest
   repository: nginx
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
@@ -49,25 +57,34 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
-service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+services:
   type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  model:
+    name: model-service
+    port: 80
+    targetPort: 8081
+
+  app:
+    name: app
+    port: 80
+    targetPort: 8080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: false
+  enabled: true
   className: ""
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
+    - host: sms-checker.local
       paths:
+        - path: /model
+          service: model-service
+          port: 80
         - path: /
-          pathType: ImplementationSpecific
+          service: app
+          port: 80
+
+
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -124,14 +141,14 @@ resources: {}
   #   memory: 128Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+livenessProbe: null
+  # httpGet:
+  #   path: /
+  #   port: http
+readinessProbe: null
+  # httpGet:
+  #   path: /
+  #   port: http
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:

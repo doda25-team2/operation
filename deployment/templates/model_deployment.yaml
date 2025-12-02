@@ -1,49 +1,58 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "deployment.fullname" . }}
+  name: model-{{ include "deployment.fullname" . }}
   labels:
     {{- include "deployment.labels" . | nindent 4 }}
+    app.kubernetes.io/name: model-{{ include "deployment.name" . }}
+
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+
   selector:
     matchLabels:
-      {{- include "deployment.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: model-{{ include "deployment.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "deployment.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app.kubernetes.io/name: model-{{ include "deployment.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
       serviceAccountName: {{ include "deployment.serviceAccountName" . }}
+
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+
+          image: "{{ .Values.image.model.repository }}:{{ .Values.image.model.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.services.model.targetPort }}
               protocol: TCP
+          env:
+            - name: MODEL_SERVICE_PORT
+              value: "8081"
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -54,10 +63,6 @@ spec:
           {{- end }}
           {{- with .Values.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
       {{- with .Values.volumes }}
