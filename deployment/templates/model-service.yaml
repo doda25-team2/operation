@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.model.name }}
+  labels:
+    app.kubernetes.io/name: model-{{ include "deployment.name" . }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.services.model.port }}
+      targetPort: {{ .Values.services.model.targetPort }}
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: model-{{ include "deployment.name" . }}
