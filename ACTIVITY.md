@@ -24,7 +24,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Miguel [bfcf924](https://github.com/doda25-team2/operation/pull/24), [a54f03c](https://github.com/doda25-team2/operation/pull/23), [da3d3df](https://github.com/doda25-team2/operation/pull/17)
 
-- Ayush [operation#18](https://github.com/doda25-team2/operation/pull/18), [operation#20](https://github.com/doda25-team2/operation/pull/20), [operation#22](https://github.com/doda25-team2/operation/pull/22), [operation#25](https://github.com/doda25-team2/operation/pull/25) 
+- Ayush [operation#18](https://github.com/doda25-team2/operation/pull/18), [operation#20](https://github.com/doda25-team2/operation/pull/20), [operation#22](https://github.com/doda25-team2/operation/pull/22), [operation#25](https://github.com/doda25-team2/operation/pull/25) For Assignment 2, I worked on Step 3 in registering an Ansible provisioner in our Vagrantfile in which I created three playbooks which are general.yaml, ctrl.yaml and node.yaml. I also worked on Step 4 on registering the SSH key and created a ssh-keys directory to store other members ssh key. I worked on Step 5 and implemented the basic swapoff -a command and also the swap entry remove for the path etc/fstab in which another member added modifications in order to complete the step. Step 7 was also completed using the module sysctl in which kernel property net.ipv4.ip_forward was enabled in all cluster nodes and the same for the other properties. Step 8 was also done by using the blockinline module and jinja2 loop. Step 10 was also done installing the K8 tools that correctly are installed.
 
 - George [#24](https://github.com/doda25-team2/operation/pull/24), [#27](https://github.com/doda25-team2/operation/pull/27), [8f1e1a6](https://github.com/doda25-team2/operation/commit/8f1e1a6a6afab03e071fcffc18ca47242c775a56) → Rebased and resolved conflicts on the Step 6 and Step 9/10 feature branches, verified Vagrant provisioning (`ctrl`, `node-1`), then fast-forward merged both PRs into `main`. Followed up by removing committed kubeconfig secrets and extending `.gitignore` so future `kubeadm init` artefacts stay out of version control.
 
@@ -34,3 +34,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Preethika [operation#26](https://github.com/doda25-team2/operation/pull/26),
 [operation#21](https://github.com/doda25-team2/operation/pull/21)
+
+### Q1.3 (Dec 1st - Dec 5th)
+
+- Ayush 
