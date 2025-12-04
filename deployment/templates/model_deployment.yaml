@@ -51,8 +51,8 @@ spec:
               containerPort: {{ .Values.services.model.targetPort }}
               protocol: TCP
           env:
-            - name: MODEL_SERVICE_PORT
-              value: "8081"
+            - name: MODEL_HOST
+              value: "http://model-service:8081"
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
