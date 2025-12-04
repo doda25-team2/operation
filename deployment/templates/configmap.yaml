@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "deployment.fullname" . }}-config
+  labels:
+    {{- include "deployment.labels" . | nindent 4 }}
+data:
+  APP_ENV: {{ .Values.appConfig.env | quote }}
+  APP_FEATURE_FLAG: {{ .Values.appConfig.featureFlag | quote }}
