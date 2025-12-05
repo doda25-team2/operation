@@ -83,7 +83,9 @@ ingress:
         - path: /
           service: app
           port: 80
-
+        - path: /metrics
+          service: app
+          port: 80
 
   tls: []
   #  - secretName: chart-example-tls
@@ -176,3 +178,33 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Prometheus 
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+  releaseLabel: operation
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      retention: 7d
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 10Gi
+  grafana:
+    enabled: true
+    adminPassword: admin
+    service:
+      type: NodePort
+  alertmanager:
+    enabled: false

@@ -18,6 +18,10 @@ spec:
 
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.services.app.targetPort }}"
+        prometheus.io/path: "/actuator/prometheus"
       labels:
         {{- include "deployment.labels" . | nindent 8 }}
         app.kubernetes.io/name: app-{{ include "deployment.name" . }}
