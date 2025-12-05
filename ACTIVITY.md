@@ -37,5 +37,5 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Q1.3 (Dec 1st - Dec 5th)
 
-- Ayush [operation#44](https://github.com/doda25-team2/operation/pull/44) [operation#45](https://github.com/doda25-team2/operation/pull/45) -> Implemented the initial helm creation for the Helm Chart. Also added a small fix to make backend work with frontend ensuring ham and spam return the correct output. 
+- Ayush [operation#44](https://github.com/doda25-team2/operation/pull/44) [operation#45](https://github.com/doda25-team2/operation/pull/45)[operation#48](https://github.com/doda25-team2/operation/pull/48) -> Implemented the initial helm creation for the Helm Chart. Also added a small fix to make backend work with frontend ensuring ham and spam return the correct output. I also worked on creating the prometheus installation and ServiceMonitor  to be binded to the service.
 - Preethika [operation#45](https://github.com/doda25-team2/operation/pull/45) -> implemented bringing up services with kubernetes(Helm) and made all the services to start up from one helm folder for Assignment 3.
