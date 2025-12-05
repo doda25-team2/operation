@@ -159,17 +159,35 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+  - name: shared-storage
+    hostPath:
+      path: /mnt/shared
+      type: DirectoryOrCreate
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+  - name: shared-storage
+    mountPath: /mnt/shared
+    readOnly: false
+
+
+# Application config that will go into a ConfigMap
+appConfig:
+  env: "production"
+  featureFlag: "off"
+
+# SMTP (or similar) credentials that will go into a Secret.
+# These are just placeholders, real values should be provided via --set or a separate values file.
+smtp:
+  username: "CHANGE_ME_USERNAME"
+  password: "CHANGE_ME_PASSWORD"
+
+# Shared storage settings (for hostPath /mnt/shared)
+sharedStorage:
+  enabled: true
+  hostPath: /mnt/shared
+  mountPath: /mnt/shared
 
 nodeSelector: {}
 
