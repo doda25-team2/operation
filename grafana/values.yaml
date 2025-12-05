@@ -1,0 +1,38 @@
+namespaceOverride: monitoring
+
+replicaCount: 1
+
+admin:
+  existingSecret: "grafana-admin-secret"
+
+image:
+  repository: grafana/grafana
+  tag: 10.3.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hosts:
+    - host: grafana.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+dashboardsConfigMaps:
+  - grafana-dashboards
+
+# Optional: Prometheus datasource placeholder
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
