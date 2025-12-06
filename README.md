@@ -61,4 +61,21 @@ It installs all microservices (app, model) along with their Services and Ingress
 - App: http://sms-checker.local/
 - Model API: http://sms-checker.local/model
 
+### Access the Kubernetes Dashboard
 
+Add the following to your hosts file:
+```
+192.168.56.95  dashboard.local
+```
+
+Where `192.168.56.95` is the Nginx Ingress Controller's LoadBalancer IP.
+
+Then navigate to `https://dashboard.local` in your browser.
+
+Create a token for the `admin-user` service account to log in:
+
+```bash
+vagrant ssh ctrl --command "kubectl -n kubernetes-dashboard create token admin-user"
+```
+
+Paste the token into the login page of the dashboard and sign in.
