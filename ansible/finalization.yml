@@ -12,6 +12,7 @@
     metallb_version: "0.14.9"
     metallb_ip_range: "192.168.56.90-192.168.56.99"
     ingress_nginx_controller_ip: "192.168.56.95"
+    istio_version: "1.25.2"
     
   environment:
     KUBECONFIG: /home/vagrant/.kube/config
@@ -126,3 +127,45 @@
       until: ingress_ready.rc == 0
       tags:
         - ingress
+
+    # Step 23: Install Istio
+    - name: Check if istioctl is already installed
+      command: which istioctl
+      register: istioctl_check
+      changed_when: false
+      failed_when: false
+      tags:
+        - istio
+
+    - name: Download and install istioctl if not present
+      when: istioctl_check.rc != 0
+      ansible.builtin.get_url:
+        url: "https://github.com/istio/istio/releases/download/{{ istio_version }}/istioctl-{{ istio_version }}-linux-amd64.tar.gz"
+        dest: /tmp/istioctl-{{ istio_version }}-linux-amd64.tar.gz
+        mode: '0755'
+      tags:
+        - istio
+
+    - name: Extract istioctl binary
+      when: istioctl_check.rc != 0
+      ansible.builtin.unarchive:
+        src: /tmp/istioctl-{{ istio_version }}-linux-amd64.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        creates: /usr/local/bin/istioctl
+        mode: '0755'
+      tags:
+        - istio
+
+    - name: Copy IstioOperator manifest
+      copy:
+        src: ../k8s/istio-operator.yaml
+        dest: /tmp/istio-operator.yaml
+        mode: '0644'
+      tags:
+        - istio
+
+    - name: Install Istio with default profile
+      command: istioctl install -y -f /tmp/istio-operator.yaml
+      tags:
+        - istio
