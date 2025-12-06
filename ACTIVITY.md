@@ -28,14 +28,14 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - George [#24](https://github.com/doda25-team2/operation/pull/24), [#27](https://github.com/doda25-team2/operation/pull/27), [8f1e1a6](https://github.com/doda25-team2/operation/commit/8f1e1a6a6afab03e071fcffc18ca47242c775a56) → Rebased and resolved conflicts on the Step 6 and Step 9/10 feature branches, verified Vagrant provisioning (`ctrl`, `node-1`), then fast-forward merged both PRs into `main`. Followed up by removing committed kubeconfig secrets and extending `.gitignore` so future `kubeadm init` artefacts stay out of version control.
 
-- Nick [operation#34](https://github.com/doda25-team2/operation/pull/34)
+- Nick [operation#34](https://github.com/doda25-team2/operation/pull/34) → Set up Vagrant on WSL using network mode Mirrored (took 12 hours and moving to Windows 11). Added generating random ed25519 SSH key and adding it to the `ctrl` VM during provisioning. Fixed nodes not being able to SSH into `ctrl` to generate a join token.
 
 - Justin [#27](https://github.com/doda25-team2/operation/pull/27), [#32](https://github.com/doda25-team2/operation/pull/32/files)  , [#37](https://github.com/doda25-team2/operation/pull/37) → resolve merge conflicts and get step 11 and 12 ready for merge, refactor and streamline the `Vagrantfile` a few times - dropping the use of `ansible_local` in favor of host driven `ansible`.
 
 - Preethika [operation#26](https://github.com/doda25-team2/operation/pull/26) -> Implemented fixes for step 8 in the assignment,
 [operation#21](https://github.com/doda25-team2/operation/pull/21) -> Added changes for step 5, Worked on PR [operation#27](https://github.com/doda25-team2/operation/pull/27) -> worked on steps 13 to 18 for assignment 2.
 
-### Q1.3 (Dec 1st - Dec 5th)
+### Q1.3 (Dec 1st - Dec 7th)
 
 - Ayush [operation#44](https://github.com/doda25-team2/operation/pull/44) [operation#45](https://github.com/doda25-team2/operation/pull/45) [operation#48](https://github.com/doda25-team2/operation/pull/48)-> Implemented the initial helm creation for the Helm Chart. Also added a small fix to make backend work with frontend ensuring ham and spam return the correct output. Also worked on the installation of the prometheus and the ServiceMonitor to bind the apps.
 - Preethika [operation#45](https://github.com/doda25-team2/operation/pull/45) -> implemented bringing up services with kubernetes(Helm) and made all the services to start up from one helm folder for Assignment 3.
@@ -44,3 +44,5 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Miguel [0f3ab59](https://github.com/doda25-team2/operation/pull/46), also split up the tasks and created the issues on projects for A3
 
 - George [operation#52](https://github.com/doda25-team2/operation/pull/52), [operation#53](https://github.com/doda25-team2/operation/pull/53) → Added a dedicated `finalization.yml` Ansible playbook that installs and wires MetalLB (downloaded manifests, webhook workaround, IP pool and L2Advertisement resources) so LoadBalancer services have a stable address range, then layered Step 21 on top with a Helm-managed NGINX ingress controller pinned to 192.168.56.95, ready checks, and the supporting SSH key material.
+
+- Nick [operation#55](https://github.com/doda25-team2/operation/pull/55), [operation#56](https://github.com/doda25-team2/operation/pull/56) → Fixed Flannel to use the correct network interface (eth1) for communication between VMs. Added Istio to the Kubernetes cluster and configured it to use a MetalLB IP address. Also added Kubernetes Dashboard to the cluster.
