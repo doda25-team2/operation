@@ -1,0 +1,80 @@
+---
+
+# ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yml
+# or if using WSL:
+# ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yml
+
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    metallb_version: "0.14.9"
+    metallb_ip_range: "192.168.56.90-192.168.56.99"
+    
+  environment:
+    KUBECONFIG: /home/vagrant/.kube/config
+
+  tasks:
+    # Step 20: Install MetalLB
+    - name: Download MetalLB native manifest
+      get_url:
+        url: "https://raw.githubusercontent.com/metallb/metallb/v{{ metallb_version }}/config/manifests/metallb-native.yaml"
+        dest: /tmp/metallb-native.yaml
+        mode: '0644'
+      tags:
+        - metallb
+
+    - name: Apply MetalLB manifest
+      command: kubectl apply -f /tmp/metallb-native.yaml
+      environment:
+        KUBECONFIG: /home/vagrant/.kube/config
+      tags:
+        - metallb
+
+    - name: Wait for MetalLB controller to be ready
+      command: >
+        kubectl wait -n metallb-system
+        -l app=metallb,component=controller
+        --for=condition=ready pod
+        --timeout=120s
+      retries: 3
+      delay: 10
+      register: metallb_wait
+      until: metallb_wait.rc == 0
+      tags:
+        - metallb
+
+    # This is a workaround for the famous Failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io"
+    - name: Temporarily delete webhook configuration to allow resource creation
+      command: kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
+      ignore_errors: yes
+      tags:
+        - metallb
+
+    - name: Copy MetalLB IPAddressPool manifest
+      copy:
+        src: ../k8s/metallb-ippool.yaml
+        dest: /tmp/metallb-ippool.yaml
+        mode: '0644'
+      tags:
+        - metallb
+
+    - name: Apply MetalLB IPAddressPool
+      command: kubectl apply -f /tmp/metallb-ippool.yaml
+      tags:
+        - metallb
+
+    - name: Copy MetalLB L2Advertisement manifest
+      copy:
+        src: ../k8s/metallb-l2advert.yaml
+        dest: /tmp/metallb-l2advert.yaml
+        mode: '0644'
+      tags:
+        - metallb
+
+    - name: Apply MetalLB L2Advertisement
+      become_user: vagrant
+      command: kubectl apply -f /tmp/metallb-l2advert.yaml
+      tags:
+        - metallb
