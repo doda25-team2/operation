@@ -126,3 +126,42 @@
       until: ingress_ready.rc == 0
       tags:
         - ingress
+
+    # Step 22: Install Kubernetes Dashboard
+    - name: Ensure kubernetes-dashboard Helm repository is present
+      command: >
+        helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      register: add_dashboard_repo
+      failed_when: add_dashboard_repo.rc != 0 and
+                   "'already exists' not in add_dashboard_repo.stderr"
+      changed_when: "'already exists' not in add_dashboard_repo.stderr"
+      tags:
+        - dashboard
+
+    - name: Refresh Helm repositories cache for dashboard
+      command: helm repo update
+      tags:
+        - dashboard
+
+    - name: Deploy or upgrade Kubernetes Dashboard
+      command: >
+        helm upgrade --install kubernetes-dashboard ./kubernetes-dashboard
+        --namespace kubernetes-dashboard
+        --create-namespace
+      args:
+        chdir: /vagrant
+      tags:
+        - dashboard
+
+    - name: Wait for dashboard pods to become Ready
+      command: >
+        kubectl wait -n kubernetes-dashboard pod
+        --selector=app.kubernetes.io/part-of=kubernetes-dashboard
+        --for=condition=Ready
+        --timeout=180s
+      retries: 2
+      delay: 15
+      register: dashboard_ready
+      until: dashboard_ready.rc == 0
+      tags:
+        - dashboard
