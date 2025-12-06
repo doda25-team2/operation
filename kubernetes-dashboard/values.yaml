@@ -1,0 +1,17 @@
+kubernetes-dashboard:
+  app:
+    ingress:
+      enabled: false  # We'll create our own Ingress template
+  
+  # Disable metrics-scraper if not needed
+  metricsScraper:
+    enabled: true
+
+# Configuration for our custom Ingress
+ingress:
+  enabled: true
+  className: nginx
+  host: dashboard.local
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
