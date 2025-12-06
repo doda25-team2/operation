@@ -3,12 +3,18 @@ kind: Service
 metadata:
   name: {{ .Values.services.app.name }}
   labels:
+    {{- include "deployment.labels" . | nindent 4 }}
     app.kubernetes.io/name: app-{{ include "deployment.name" . }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.services.app.targetPort }}"
+    prometheus.io/path: "/actuator/prometheus"
 spec:
   type: ClusterIP
   ports:
     - port: {{ .Values.services.app.port }}
       targetPort: {{ .Values.services.app.targetPort }}
       protocol: TCP
+      name: http
   selector:
     app.kubernetes.io/name: app-{{ include "deployment.name" . }}

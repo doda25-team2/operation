@@ -1,6 +1,8 @@
 ---
 
 # ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yml
+# or if using WSL:
+# ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yml
 
 - hosts: all
   become: yes

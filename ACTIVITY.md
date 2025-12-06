@@ -42,3 +42,5 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Justin [operation#47](https://github.com/doda25-team2/operation/pull/47) → a very humble introduction of `grafana`. PR was created _before_ prometheus code was ready so it doesn't do much other than take one to a splash page.
 
 - Miguel [0f3ab59](https://github.com/doda25-team2/operation/pull/46), also split up the tasks and created the issues on projects for A3
+
+- George [operation#52](https://github.com/doda25-team2/operation/pull/52), [operation#53](https://github.com/doda25-team2/operation/pull/53) → Added a dedicated `finalization.yml` Ansible playbook that installs and wires MetalLB (downloaded manifests, webhook workaround, IP pool and L2Advertisement resources) so LoadBalancer services have a stable address range, then layered Step 21 on top with a Helm-managed NGINX ingress controller pinned to 192.168.56.95, ready checks, and the supporting SSH key material.
