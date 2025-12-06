@@ -11,6 +11,7 @@
   vars:
     metallb_version: "0.14.9"
     metallb_ip_range: "192.168.56.90-192.168.56.99"
+    ingress_nginx_controller_ip: "192.168.56.95"
     
   environment:
     KUBECONFIG: /home/vagrant/.kube/config
@@ -78,3 +79,50 @@
       command: kubectl apply -f /tmp/metallb-l2advert.yaml
       tags:
         - metallb
+      
+    # Step 21: Install the Nginx Ingress Controller
+    - name: Ensure ingress-nginx Helm repository is present
+      command: >
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+      register: add_ingress_repo
+      failed_when: add_ingress_repo.rc != 0 and
+                   "'already exists' not in add_ingress_repo.stderr"
+      changed_when: "'already exists' not in add_ingress_repo.stderr"
+      tags:
+        - ingress
+
+    - name: Refresh Helm repositories cache
+      command: helm repo update
+      tags:
+        - ingress
+
+    - name: Verify existing ingress-nginx installation
+      command: helm status ingress-nginx -n ingress-nginx
+      register: ingress_status
+      changed_when: false
+      failed_when: false
+      tags:
+        - ingress
+
+    - name: Deploy or upgrade NGINX Ingress Controller
+      command: >
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx
+        --namespace ingress-nginx
+        --create-namespace
+        --set controller.service.loadBalancerIP={{ ingress_nginx_controller_ip }}
+      when: ingress_status.rc != 0
+      tags:
+        - ingress
+
+    - name: Wait for ingress controller pods to become Ready
+      command: >
+        kubectl wait -n ingress-nginx pod
+        --selector=app.kubernetes.io/component=controller
+        --for=condition=Ready
+        --timeout=180s
+      retries: 2
+      delay: 15
+      register: ingress_ready
+      until: ingress_ready.rc == 0
+      tags:
+        - ingress
