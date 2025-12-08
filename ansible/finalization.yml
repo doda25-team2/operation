@@ -129,6 +129,19 @@
         - ingress
 
     # Step 23: Install Istio
+    - name: Detect system architecture
+      command: uname -m
+      register: system_arch
+      changed_when: false
+      tags:
+        - istio
+
+    - name: Set architecture suffix for istioctl download
+      set_fact:
+        istio_arch: "{{ 'arm64' if system_arch.stdout == 'aarch64' else 'amd64' }}"
+      tags:
+        - istio
+
     - name: Check if istioctl is already installed
       command: which istioctl
       register: istioctl_check
@@ -140,8 +153,8 @@
     - name: Download and install istioctl if not present
       when: istioctl_check.rc != 0
       ansible.builtin.get_url:
-        url: "https://github.com/istio/istio/releases/download/{{ istio_version }}/istioctl-{{ istio_version }}-linux-amd64.tar.gz"
-        dest: /tmp/istioctl-{{ istio_version }}-linux-amd64.tar.gz
+        url: "https://github.com/istio/istio/releases/download/{{ istio_version }}/istioctl-{{ istio_version }}-linux-{{ istio_arch }}.tar.gz"
+        dest: /tmp/istioctl-{{ istio_version }}-linux-{{ istio_arch }}.tar.gz
         mode: '0755'
       tags:
         - istio
@@ -149,7 +162,7 @@
     - name: Extract istioctl binary
       when: istioctl_check.rc != 0
       ansible.builtin.unarchive:
-        src: /tmp/istioctl-{{ istio_version }}-linux-amd64.tar.gz
+        src: /tmp/istioctl-{{ istio_version }}-linux-{{ istio_arch }}.tar.gz
         dest: /usr/local/bin
         remote_src: yes
         creates: /usr/local/bin/istioctl
