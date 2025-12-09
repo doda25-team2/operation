@@ -19,4 +19,3 @@ spec:
           annotations:
             summary: "High request rate on SMS Checker"
             description: "SMS Checker receiving >15 req/min for 2 minutes"
-{{- end }}
