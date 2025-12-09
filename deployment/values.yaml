@@ -205,12 +205,16 @@ prometheus:
     interval: 30s
     scrapeTimeout: 10s
   releaseLabel: operation
+  alerts:
+    enabled: true
 
 kube-prometheus-stack:
   prometheus:
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
       podMonitorSelectorNilUsesHelmValues: false
+      ruleSelector: {}
+      ruleSelectorNilUsesHelmValues: false
       retention: 7d
       storageSpec:
         volumeClaimTemplate:
@@ -225,4 +229,20 @@ kube-prometheus-stack:
     service:
       type: NodePort
   alertmanager:
-    enabled: false
+    enabled: true
+    service:
+      type: NodePort
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        receiver: 'webhook'
+        group_by: ['alertname', 'severity']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 12h
+      receivers:
+        - name: 'webhook'
+          webhook_configs:
+            - url: 'http://localhost:5001/webhook'
+              send_resolved: true

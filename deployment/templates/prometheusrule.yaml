@@ -1,0 +1,21 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "deployment.fullname" . }}-alerts
+  labels:
+    {{- include "deployment.labels" . | nindent 4 }}
+    release: {{ .Values.prometheus.releaseLabel }}
+    role: alert-rules
+spec:
+  groups:
+    - name: sms-checker-alerts
+      rules:
+        - alert: HighRequestRate
+          expr: rate(sms_classification_requests_total[1m]) * 60 > 15
+          for: 2m
+          labels:
+            severity: warning
+            service: sms-checker
+          annotations:
+            summary: "High request rate on SMS Checker"
+            description: "SMS Checker receiving >15 req/min for 2 minutes"
