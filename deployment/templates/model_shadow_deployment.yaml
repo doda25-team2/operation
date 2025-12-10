@@ -1,52 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: model-{{ include "deployment.fullname" . }}
+  name: model-{{ include "deployment.fullname" . }}-shadow
   labels:
     {{- include "deployment.labels" . | nindent 4 }}
     app.kubernetes.io/name: model-{{ include "deployment.name" . }}
-
+    app.kubernetes.io/instance: {{ .Release.Name }}-shadow
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
-
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: model-{{ include "deployment.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
-
+      app.kubernetes.io/instance: {{ .Release.Name }}-shadow
   template:
     metadata:
       labels:
         {{- include "deployment.labels" . | nindent 8 }}
         app.kubernetes.io/name: model-{{ include "deployment.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
-        version: primary
-
+        app.kubernetes.io/instance: {{ .Release.Name }}-shadow
+        version: shadow
     spec:
+      serviceAccountName: {{ include "deployment.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
-      serviceAccountName: {{ include "deployment.serviceAccountName" . }}
-
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-
+        - name: {{ .Chart.Name }}-shadow
           image: "{{ .Values.image.model.repository }}:{{ .Values.image.model.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
           ports:
             - name: http
               containerPort: {{ .Values.services.model.targetPort }}
@@ -68,19 +50,3 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
