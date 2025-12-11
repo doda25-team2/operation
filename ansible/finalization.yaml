@@ -221,3 +221,13 @@
       command: istioctl install -y -f /tmp/istio-operator.yaml
       tags:
         - istio
+
+    - name: Install Istio addons - prometheus
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/prometheus.yaml
+
+    - name: Install Istio addons - jaeger
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/jaeger.yaml
+
+    - name: Install Istio addons - kiali
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/kiali.yaml
+
