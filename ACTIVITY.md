@@ -51,4 +51,6 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Ayush[operation#64](https://github.com/doda25-team2/operation/pull/64) -> This week I worked on assignment 3 in which I implemented the Alerting in prometheus in which one PrometheusRule was used which was that an alert is sent when the service receives more than 15 requests per minute for two minutes.
 
+- George [app#8](https://github.com/doda25-team2/app/pull/8), [operation#65](https://github.com/doda25-team2/operation/pull/65) → Implemented custom Prometheus metrics endpoint in the app repository with 5 manually-created metrics (Counters, Gauge, Histograms with labels). Fixed Prometheus scraping by correcting Content-Type headers and ServiceMonitor configuration. Modified AlertManager and PrometheusRule settings (alert thresholds, query windows, webhook routing). Cleaned up monitoring configuration and updated README with access URLs and testing instructions.
+
 
