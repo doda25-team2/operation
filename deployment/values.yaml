@@ -179,12 +179,6 @@ appConfig:
   env: "production"
   featureFlag: "off"
 
-# SMTP (or similar) credentials that will go into a Secret.
-# These are just placeholders, real values should be provided via --set or a separate values file.
-smtp:
-  username: "CHANGE_ME_USERNAME"
-  password: "CHANGE_ME_PASSWORD"
-
 # Shared storage settings (for hostPath /mnt/shared)
 sharedStorage:
   enabled: true
@@ -211,18 +205,13 @@ prometheus:
 kube-prometheus-stack:
   prometheus:
     prometheusSpec:
-      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: true
       podMonitorSelectorNilUsesHelmValues: false
       ruleSelector: {}
       ruleSelectorNilUsesHelmValues: false
       retention: 7d
       storageSpec:
-        volumeClaimTemplate:
-          spec:
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 10Gi
+        emptyDir: {}
   grafana:
     enabled: true
     adminPassword: admin
@@ -236,13 +225,14 @@ kube-prometheus-stack:
       global:
         resolve_timeout: 5m
       route:
-        receiver: 'webhook'
+        receiver: 'webhook-alerts'
         group_by: ['alertname', 'severity']
         group_wait: 10s
         group_interval: 10s
         repeat_interval: 12h
       receivers:
-        - name: 'webhook'
+        - name: 'null'
+        - name: 'webhook-alerts'
           webhook_configs:
             - url: 'http://localhost:5001/webhook'
               send_resolved: true

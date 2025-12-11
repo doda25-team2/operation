@@ -5,10 +5,6 @@ metadata:
   labels:
     {{- include "deployment.labels" . | nindent 4 }}
     app.kubernetes.io/name: model-{{ include "deployment.name" . }}
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "{{ .Values.services.model.targetPort }}"
-    prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
   ports:

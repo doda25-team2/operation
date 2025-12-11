@@ -8,7 +8,7 @@ metadata:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "{{ .Values.services.app.targetPort }}"
-    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/path: "/metrics"
 spec:
   type: ClusterIP
   ports:
