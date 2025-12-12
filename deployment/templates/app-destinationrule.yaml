@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ include "deployment.fullname" . }}-app-dr
+spec:
+  host: {{ .Values.services.app.name }}
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 1000
+    {{- if .Values.istio.canary.enabled }}
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: x-user-id
+    {{- end }}
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    {{- if .Values.istio.canary.enabled }}
+    - name: canary
+      labels:
+        version: canary
+    {{- end }}
