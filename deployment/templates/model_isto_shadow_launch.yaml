@@ -1,18 +1,4 @@
 apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: model-{{ include "deployment.fullname" . }}-dr
-spec:
-  host: {{ .Values.services.model.name }}.{{ .Release.Namespace }}.svc.cluster.local
-  subsets:
-    - name: primary
-      labels:
-        version: primary
-    - name: shadow
-      labels:
-        version: shadow
-
-apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
   name: model-{{ include "deployment.fullname" . }}-vs
