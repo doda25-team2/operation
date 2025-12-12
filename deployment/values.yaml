@@ -236,3 +236,8 @@ kube-prometheus-stack:
           webhook_configs:
             - url: 'http://localhost:5001/webhook'
               send_resolved: true
+  prometheusOperator:
+    admissionWebhooks:
+      patch:
+        podAnnotations:
+          sidecar.istio.io/inject: "false"
