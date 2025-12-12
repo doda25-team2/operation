@@ -21,7 +21,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.services.app.targetPort }}"
-        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/path: "/metrics"
       labels:
         {{- include "deployment.labels" . | nindent 8 }}
         app.kubernetes.io/name: app-{{ include "deployment.name" . }}
@@ -71,18 +71,6 @@ spec:
                 configMapKeyRef:
                   name: {{ include "deployment.fullname" . }}-config
                   key: APP_FEATURE_FLAG
-
-            # Values from Secret
-            - name: SMTP_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "deployment.fullname" . }}-secret
-                  key: smtpUsername
-            - name: SMTP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "deployment.fullname" . }}-secret
-                  key: smtpPassword
 
           {{- with .Values.livenessProbe }}
           livenessProbe:

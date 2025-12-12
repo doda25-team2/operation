@@ -1,3 +1,4 @@
+{{- if and .Values.prometheus.enabled .Values.prometheus.alerts.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -11,11 +12,12 @@ spec:
     - name: sms-checker-alerts
       rules:
         - alert: HighRequestRate
-          expr: rate(sms_classification_requests_total[1m]) * 60 > 15
-          for: 2m
+          expr: rate(sms_classification_requests_total[1m]) * 60 > 10
+          for: 10s
           labels:
-            severity: warning
+            severity: critical
             service: sms-checker
           annotations:
             summary: "High request rate on SMS Checker"
-            description: "SMS Checker receiving >15 req/min for 2 minutes"
+            description: 'SMS Checker receiving >10 req/min for 10 seconds (Current: {{ printf "{{ $value | humanize }}" }} req/min)'
+{{- end }}
