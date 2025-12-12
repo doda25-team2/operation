@@ -1,8 +1,8 @@
 ---
 
-# ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yml
+# ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yaml
 # or if using WSL:
-# ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yml
+# ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yaml
 
 - hosts: all
   become: yes
@@ -221,3 +221,15 @@
       command: istioctl install -y -f /tmp/istio-operator.yaml
       tags:
         - istio
+
+    - name: Install Istio addons - prometheus
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/prometheus.yaml
+
+    - name: Install Istio addons - jaeger
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/jaeger.yaml
+
+    - name: Install Istio addons - kiali
+      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/kiali.yaml
+
+    - name: Enable istio
+      command: kubectl label ns default istio-injection=enabled
