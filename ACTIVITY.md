@@ -58,3 +58,4 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Nick [operation#71](https://github.com/doda25-team2/operation/pull/71), [operation#72](https://github.com/doda25-team2/operation/pull/72), [operation#73](https://github.com/doda25-team2/operation/pull/73) → Fixed deadlock when installing deployment Helm chart, removed overwritten DestinationRule, implemented A4 "Traffic Management" to route 90% of users to stable app deployment and 10% to canary deployment using Sticky Sessions.
 
 - Justin [operation#66](https://github.com/doda25-team2/operation/pull/67) → Add and test `istio` installation to the `finalization.yml` playbook.
+- Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added deployment instructions and initial routing information.
