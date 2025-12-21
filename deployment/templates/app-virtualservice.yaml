@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "deployment.fullname" . }}-app-vs
+spec:
+  hosts:
+    - {{ .Values.istio.host | quote }}
+  gateways:
+    - {{ include "deployment.fullname" . }}-gateway
+  http:
+    {{- if .Values.istio.canary.enabled }}
+    # Route users with x-user-id ending in 0 to canary (~10% of users)
+    - match:
+        - headers:
+            x-user-id:
+              regex: ".*0$"
+      route:
+        - destination:
+            host: {{ .Values.services.app.name }}
+            port:
+              number: {{ .Values.services.app.port }}
+            subset: canary
+    # All other users go to stable
+    - route:
+        - destination:
+            host: {{ .Values.services.app.name }}
+            port:
+              number: {{ .Values.services.app.port }}
+            subset: stable
+    {{- else }}
+    - route:
+        - destination:
+            host: {{ .Values.services.app.name }}
+            port:
+              number: {{ .Values.services.app.port }}
+    {{- end }}

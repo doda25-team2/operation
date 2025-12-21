@@ -191,6 +191,21 @@ tolerations: []
 
 affinity: {}
 
+istio:
+  host: "sms-checker.local"
+  # Ingress gateway configuration - the name/label used by your cluster's ingress gateway
+  # Default is 'ingressgateway' which matches istio=ingressgateway selector
+  ingressGateway:
+    name: ingressgateway
+  canary:
+    enabled: true
+    replicaCount: 1
+    stableWeight: 90
+    canaryWeight: 10
+    image:
+      repository: ghcr.io/doda25-team2/app
+      tag: v1.3.1
+
 # Prometheus 
 prometheus:
   enabled: true
