@@ -217,6 +217,11 @@ kube-prometheus-stack:
     adminPassword: admin
     service:
       type: NodePort
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.local
   alertmanager:
     enabled: true
     service:
