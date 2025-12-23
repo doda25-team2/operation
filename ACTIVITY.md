@@ -62,11 +62,12 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 6 (Dec 15th - Dec 21nd)
 
-### Week _ (Dec 22nd - Dec 28th)
-
 - George [operation#74](https://github.com/doda25-team2/operation/pull/74), [operation#75](https://github.com/doda25-team2/operation/pull/75) → Added shared VirtualBox folder mount to enable cross-VM persistent storage at /mnt/shared, satisfying A3 Excellent rubric requirement for hostPath volumes. Implemented environment variable support in docker-compose.yml with .env.example template and README documentation, allowing configurable image versions and ports for A1 Excellent rubric compliance.
 
 - Nick [operation#76](https://github.com/doda25-team2/operation/pull/76) → Fixed Prometheus's bundled Grafana ingress, added custom dashboard with two timeseries panels.
+- Justin - no work.
+  
+### Week _ (Dec 22nd - Dec 28th)
 
 ### Week _ (Dec 29th - Jan 4th)
 
@@ -74,7 +75,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 8 (Jan 12th - Jan 18th)
 
-### Week 9 (Jan 19th - Jan 18th)
+### Week 9 (Jan 19th - Jan 25th)
 
 ### Week 10 (Jan 26th, 27th)
 
