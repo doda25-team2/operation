@@ -1,4 +1,4 @@
-### Q1.1 (Nov 10 - Nov 21th) 
+### Week 1 & 2 (Nov 10 - Nov 23rd) 
 
 - Justin [2886282](https://github.com/doda25-team2/model-service/commit/2886282c4e4b8eb0b5e2b10a64d5bf10695e1dff), [7daa5d7](https://github.com/doda25-team2/app/commit/7daa5d79757fa2df24690c425b04231b083b7c0d), [model-service#1](https://github.com/doda25-team2/model-service/pull/1), [model-service#2](https://github.com/doda25-team2/model-service/pull/2), [app#5](https://github.com/doda25-team2/app/pull/5) →
 Split the original `smschecker` repository and distributed the codebase across our four repos. Prepared and migrated backend to `uv`. Prepared backend `Dockerfile` and updated `README`. Modified `docker-image-build` actions to support multi-platform builds and more granular semantic tagging.
@@ -20,7 +20,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Nick: I implemented F1 and F2. As the release workflow trigger only works when it is present on the main branch, I pushed directly to main for F2, and the commits can be viewed [here](https://github.com/doda25-team2/lib-version/compare/90cc6a99f3564f92f41765ec9012eb211c342319...29748c5dfa95a2c5e5c8b2e5595be181cc9df4e2). For F1, see [app#7](https://github.com/doda25-team2/app/pull/7).
 
-### Q1.2 (Nov 21 - Nov 28th)
+### Week 3 (Nov 24 - Nov 30th)
 
 - Miguel [bfcf924](https://github.com/doda25-team2/operation/pull/24) -> configured required kubernetes kernel modules across all nodes, added configuration file with `overlay` and `br_netfilter` modules, [a54f03c](https://github.com/doda25-team2/operation/pull/23), [da3d3df](https://github.com/doda25-team2/operation/pull/17) -> provided the base Vagrant environment for the kubernetes cluster, created the controlle rand worker bms and configured their settings.
 
@@ -35,7 +35,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Preethika [operation#26](https://github.com/doda25-team2/operation/pull/26) -> Implemented fixes for step 8 in the assignment,
 [operation#21](https://github.com/doda25-team2/operation/pull/21) -> Added changes for step 5, Worked on PR [operation#27](https://github.com/doda25-team2/operation/pull/27) -> worked on steps 13 to 18 for assignment 2.
 
-### Q1.3 (Dec 1st - Dec 7th)
+### Week 4 (Dec 1st - Dec 7th)
 
 - Ayush [operation#44](https://github.com/doda25-team2/operation/pull/44) [operation#45](https://github.com/doda25-team2/operation/pull/45) [operation#48](https://github.com/doda25-team2/operation/pull/48)-> Implemented the initial helm creation for the Helm Chart. Also added a small fix to make backend work with frontend ensuring ham and spam return the correct output. Also worked on the installation of the prometheus and the ServiceMonitor to bind the apps.
 - Preethika [operation#45](https://github.com/doda25-team2/operation/pull/45) -> implemented bringing up services with kubernetes(Helm) and made all the services to start up from one helm folder for Assignment 3.
@@ -47,7 +47,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Nick [operation#55](https://github.com/doda25-team2/operation/pull/55), [operation#56](https://github.com/doda25-team2/operation/pull/56) → Fixed Flannel to use the correct network interface (eth1) for communication between VMs. Added Istio to the Kubernetes cluster and configured it to use a MetalLB IP address. Also added Kubernetes Dashboard to the cluster.
 
-### Q1.4 (Dec 8th - Dec 12th)
+### Week 5 (Dec 8th - Dec 14th)
 
 - Ayush[operation#64](https://github.com/doda25-team2/operation/pull/64) [operation#70](https://github.com/doda25-team2/operation/pull/70)-> This week I worked on assignment 3 in which I implemented the Alerting in prometheus in which one PrometheusRule was used which was that an alert is sent when the service receives more than 15 requests per minute for two minutes. For assignment 4, I worked on implementing the extension proposal documentation.
 
@@ -60,8 +60,24 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Justin [operation#66](https://github.com/doda25-team2/operation/pull/67) → Add and test `istio` installation to the `finalization.yml` playbook.
 - Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added deployment instructions and initial routing information.
 
-### Q1.5 (Dec 19th - Dec 26th)
+### Week 6 (Dec 15th - Dec 21nd)
+
+### Week _ (Dec 22nd - Dec 28th)
 
 - George [operation#74](https://github.com/doda25-team2/operation/pull/74), [operation#75](https://github.com/doda25-team2/operation/pull/75) → Added shared VirtualBox folder mount to enable cross-VM persistent storage at /mnt/shared, satisfying A3 Excellent rubric requirement for hostPath volumes. Implemented environment variable support in docker-compose.yml with .env.example template and README documentation, allowing configurable image versions and ports for A1 Excellent rubric compliance.
 
 - Nick [operation#76](https://github.com/doda25-team2/operation/pull/76) → Fixed Prometheus's bundled Grafana ingress, added custom dashboard with two timeseries panels.
+
+### Week _ (Dec 29th - Jan 4th)
+
+### Week 7 (Jan 5th - Jan 11th)
+
+### Week 8 (Jan 12th - Jan 18th)
+
+### Week 9 (Jan 19th - Jan 18th)
+
+### Week 10 (Jan 26th, 27th)
+
+
+
+
