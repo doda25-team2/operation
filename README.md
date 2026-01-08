@@ -20,6 +20,21 @@ To stop the services:
 docker compose down
 ```
 
+**Customizing image versions**
+
+You can override image versions and ports using environment variables. Copy `.env.example` to `.env` and customize:
+
+```bash
+cp .env.example .env
+# Edit .env to set custom image versions
+docker compose up -d
+```
+
+Or set them directly:
+```bash
+MODEL_SERVICE_IMAGE=ghcr.io/doda25-team2/model-service:v1.0.0 docker compose up -d
+```
+
 **Rebuilding / developing locally**
 
 If you need to build the images locally (for development or after changes), build and tag the images and then restart the compose stack.
