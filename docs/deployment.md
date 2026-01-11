@@ -33,81 +33,38 @@ The complete deployment architecture, including all Kubernetes and Istio resourc
 
 ### Deployment Architecture
 
-The following diagram illustrates the complete deployment architecture, showing all Kubernetes and Istio resources and their relationships:
+The deployment architecture is organized into several layers. The following diagrams break down the system into focused modules:
+
+#### High-Level System Overview
 
 ```mermaid
 flowchart TB
-    subgraph external["External Layer"]
-        Client[Client<br/>x-user-id header]
-    end
+    Client[Client<br/>x-user-id header] --> IngressGW[Istio IngressGateway]
+    IngressGW --> IstioLayer[Istio Traffic Management]
+    IstioLayer --> AppLayer[Application Services]
+    AppLayer --> Observability[Observability Stack]
+    AppLayer --> Config[Configuration Resources]
+    
+    style IngressGW fill:#e1f5ff
+    style IstioLayer fill:#e1f5ff
+    style AppLayer fill:#fff4e1
+    style Observability fill:#ffebee
+    style Config fill:#f3e5f5
+```
 
-    subgraph istioLayer["Istio Layer"]
-        IngressGW[Istio IngressGateway<br/>Envoy Proxy]
-        Gateway[Gateway<br/>Port 80<br/>sms-checker.local]
-        AppVS[App VirtualService<br/>Canary Routing]
-        AppDR[App DestinationRule<br/>Consistent Hashing]
-        ModelVS[Model VirtualService<br/>Shadow Mirroring]
-        ModelDR[Model DestinationRule<br/>Subsets]
-    end
+#### Istio Traffic Management Layer
 
-    subgraph appLayer["Application Layer"]
-        AppSvc[app-service<br/>Service ClusterIP]
-        AppStable[app-deployment<br/>version: stable]
-        AppCanary[app-canary-deployment<br/>version: canary]
-        ModelSvc[model-service<br/>Service ClusterIP]
-        ModelPrimary[model-deployment<br/>version: primary]
-        ModelShadow[model-shadow-deployment<br/>version: shadow]
-    end
-
-    subgraph observability["Observability Layer"]
-        ServiceMonitor[ServiceMonitor<br/>Selects app-service]
-        Prometheus[Prometheus<br/>Scrapes Metrics]
-        PrometheusRule[PrometheusRule<br/>Alert Rules]
-        Grafana[Grafana<br/>Dashboards]
-        Alertmanager[Alertmanager<br/>Alert Routing]
-    end
-
-    subgraph config["Configuration Layer"]
-        ConfigMap[ConfigMap<br/>App Configuration]
-        ServiceAccount[ServiceAccount<br/>Pod Identity]
-        HPA[HPA<br/>Autoscaling<br/>Optional]
-    end
-
-    Client -->|HTTP Request| IngressGW
-    IngressGW --> Gateway
-    Gateway --> AppVS
-    AppVS -->|Routes based on<br/>x-user-id| AppDR
-    AppDR -->|Subset: stable<br/>~90%| AppSvc
-    AppDR -->|Subset: canary<br/>~10%| AppSvc
-    AppSvc -->|Selects by label| AppStable
-    AppSvc -->|Selects by label| AppCanary
-    AppStable -->|Calls| ModelSvc
-    AppCanary -->|Calls| ModelSvc
-    ModelSvc --> ModelVS
-    ModelVS -->|Routes 100%| ModelDR
-    ModelVS -->|Mirrors 100%| ModelDR
-    ModelDR -->|Subset: primary| ModelPrimary
-    ModelDR -->|Subset: shadow| ModelShadow
-    ModelPrimary -->|Response| AppStable
-    ModelPrimary -->|Response| AppCanary
-    AppStable -->|Response| Client
-    AppCanary -->|Response| Client
-
-    ServiceMonitor -->|Selects| AppSvc
-    Prometheus -->|Scrapes via| ServiceMonitor
-    Prometheus -->|Evaluates| PrometheusRule
-    PrometheusRule -->|Fires Alerts| Alertmanager
-    Prometheus -->|Queried by| Grafana
-
-    ConfigMap -->|Env Vars| AppStable
-    ConfigMap -->|Env Vars| AppCanary
-    ServiceAccount -->|Used by| AppStable
-    ServiceAccount -->|Used by| AppCanary
-    ServiceAccount -->|Used by| ModelPrimary
-    ServiceAccount -->|Used by| ModelShadow
-    HPA -.->|Scales| AppStable
-    HPA -.->|Scales| AppCanary
-
+```mermaid
+flowchart LR
+    IngressGW[Istio IngressGateway<br/>Envoy Proxy] --> Gateway[Gateway<br/>Port 80<br/>sms-checker.local]
+    Gateway --> AppVS[App VirtualService<br/>Canary Routing]
+    AppVS --> AppDR[App DestinationRule<br/>Consistent Hashing]
+    AppDR --> AppSvc[app-service<br/>Service]
+    
+    AppSvc --> ModelSvc[model-service<br/>Service]
+    ModelSvc --> ModelVS[Model VirtualService<br/>Shadow Mirroring]
+    ModelVS --> ModelDR[Model DestinationRule<br/>Subsets]
+    
     style IngressGW fill:#e1f5ff
     style Gateway fill:#e1f5ff
     style AppVS fill:#e1f5ff
@@ -116,20 +73,71 @@ flowchart TB
     style ModelDR fill:#e1f5ff
     style AppSvc fill:#fff4e1
     style ModelSvc fill:#fff4e1
+```
+
+#### Application Services and Deployments
+
+```mermaid
+flowchart TB
+    AppSvc[app-service<br/>Service ClusterIP] --> AppStable[app-deployment<br/>version: stable<br/>~90% traffic]
+    AppSvc --> AppCanary[app-canary-deployment<br/>version: canary<br/>~10% traffic]
+    
+    AppStable -->|Calls| ModelSvc[model-service<br/>Service ClusterIP]
+    AppCanary -->|Calls| ModelSvc
+    
+    ModelSvc --> ModelPrimary[model-deployment<br/>version: primary<br/>100% user-visible]
+    ModelSvc --> ModelShadow[model-shadow-deployment<br/>version: shadow<br/>100% mirrored]
+    
+    style AppSvc fill:#fff4e1
+    style ModelSvc fill:#fff4e1
     style AppStable fill:#e8f5e9
     style AppCanary fill:#fff9c4
     style ModelPrimary fill:#e8f5e9
     style ModelShadow fill:#f3e5f5
+```
+
+#### Observability Stack
+
+```mermaid
+flowchart LR
+    ServiceMonitor[ServiceMonitor<br/>Selects app-service] --> Prometheus[Prometheus<br/>Scrapes Metrics]
+    Prometheus --> PrometheusRule[PrometheusRule<br/>Alert Rules]
+    PrometheusRule --> Alertmanager[Alertmanager<br/>Alert Routing]
+    Prometheus --> Grafana[Grafana<br/>Dashboards]
+    
     style Prometheus fill:#ffebee
     style Grafana fill:#ffebee
     style Alertmanager fill:#ffebee
+    style ServiceMonitor fill:#ffebee
+    style PrometheusRule fill:#ffebee
 ```
 
-This architecture diagram shows:
-- **Istio Layer**: Gateway, VirtualServices, and DestinationRules that manage traffic routing
-- **Application Layer**: Services and Deployments for both app-service (stable/canary) and model-service (primary/shadow)
-- **Observability Layer**: Prometheus stack components for metrics collection, visualization, and alerting
-- **Configuration Layer**: ConfigMap, ServiceAccount, and optional HPA for application configuration and scaling
+#### Configuration Resources
+
+```mermaid
+flowchart TB
+    ConfigMap[ConfigMap<br/>App Configuration] --> AppStable[app-deployment]
+    ConfigMap --> AppCanary[app-canary-deployment]
+    
+    ServiceAccount[ServiceAccount<br/>Pod Identity] --> AppStable
+    ServiceAccount --> AppCanary
+    ServiceAccount --> ModelPrimary[model-deployment]
+    ServiceAccount --> ModelShadow[model-shadow-deployment]
+    
+    HPA[HPA<br/>Autoscaling<br/>Optional] -.->|Scales| AppStable
+    HPA -.->|Scales| AppCanary
+    
+    style ConfigMap fill:#f3e5f5
+    style ServiceAccount fill:#f3e5f5
+    style HPA fill:#f3e5f5
+```
+
+These modular diagrams show:
+- **High-Level Overview**: The main architectural layers and their relationships
+- **Istio Traffic Management**: Gateway, VirtualServices, and DestinationRules that handle routing
+- **Application Services**: Services and Deployments with their traffic distribution (90/10 canary, 100% primary + shadow mirroring)
+- **Observability Stack**: Prometheus, Grafana, and Alertmanager for monitoring and alerting
+- **Configuration Resources**: ConfigMap, ServiceAccount, and optional HPA for application configuration and scaling
 
 ---
 
