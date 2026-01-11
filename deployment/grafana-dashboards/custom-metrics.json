@@ -110,13 +110,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(sms_classification_requests_total[$__rate_interval])",
+          "expr": "sum(rate(sms_classification_requests_total[$__rate_interval]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "SMS classification requests"
         }
       ],
-      "title": "SMS classification requests",
+      "title": "SMS classification requests per second",
       "type": "timeseries"
     },
     {
