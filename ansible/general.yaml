@@ -170,16 +170,24 @@
         state: directory
         mode: "0755"
 
+    - name: Check if containerd config exists
+      ansible.builtin.stat:
+        path: /etc/containerd/config.toml
+      register: containerd_config
+
     - name: Generate default containerd configuration
       ansible.builtin.command: containerd config default
       register: containerd_default
       changed_when: false
+      when: not containerd_config.stat.exists
 
     - name: Write base containerd config
       ansible.builtin.copy:
         dest: /etc/containerd/config.toml
         mode: "0644"
         content: "{{ containerd_default.stdout }}"
+      when: not containerd_config.stat.exists
+      notify: restart containerd
 
     - name: Disable AppArmor in containerd config
       ansible.builtin.lineinfile:
@@ -187,6 +195,7 @@
         regexp: '^\s*disable_apparmor\s*=\s*false'
         line: '    disable_apparmor = true'
         backrefs: yes
+      notify: restart containerd
 
     - name: Set pause sandbox image to registry.k8s.io/pause:3.10
       ansible.builtin.lineinfile:
@@ -194,6 +203,7 @@
         regexp: '^\s*sandbox_image\s*=\s*".*"'
         line: '    sandbox_image = "registry.k8s.io/pause:3.10"'
         backrefs: yes
+      notify: restart containerd
 
     - name: Enable SystemdCgroup in containerd
       ansible.builtin.lineinfile:
@@ -201,15 +211,17 @@
         regexp: '^\s*SystemdCgroup\s*=\s*false'
         line: '            SystemdCgroup = true'
         backrefs: yes
-
-    - name: Restart containerd with new configuration
-      ansible.builtin.service:
-        name: containerd
-        state: restarted
-        enabled: yes
+      notify: restart containerd
 
     - name: Ensure kubelet is enabled and started
       service:
         name: kubelet
         state: started
+        enabled: yes
+
+  handlers:
+    - name: restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
         enabled: yes
