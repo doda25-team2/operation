@@ -65,6 +65,7 @@
               "mode": "off"
             }
           },
+          "displayName": "Requests per second",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -72,13 +73,10 @@
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -138,7 +136,8 @@
                 "value": 0
               }
             ]
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -174,7 +173,7 @@
           "refId": "A"
         }
       ],
-      "title": "SMS classification req/s",
+      "title": "Classification throughput",
       "type": "gauge"
     },
     {
@@ -229,13 +228,10 @@
               {
                 "color": "green",
                 "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "requests"
         },
         "overrides": []
       },
@@ -309,6 +305,9 @@
       "options": {
         "calculate": false,
         "cellGap": 1,
+        "cellValues": {
+          "unit": "reqps"
+        },
         "color": {
           "exponent": 0.5,
           "fill": "dark-orange",
@@ -328,16 +327,18 @@
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "auto",
+          "value": "Requests per second"
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "showColorScale": false,
           "yHistogram": false
         },
         "yAxis": {
           "axisPlacement": "left",
-          "reverse": false
+          "reverse": false,
+          "unit": "chars"
         }
       },
       "pluginVersion": "12.3.0",
@@ -359,7 +360,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Length of currently processed message in characters.\n\n`max(latest value of all pods)`",
+      "description": "Length of latest processed message in characters\n\n`max(latest value of all pods)`",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -374,7 +375,8 @@
                 "value": 0
               }
             ]
-          }
+          },
+          "unit": "chars"
         },
         "overrides": []
       },
@@ -413,7 +415,7 @@
           "refId": "A"
         }
       ],
-      "title": "Message length",
+      "title": "Latest message length",
       "type": "gauge"
     },
     {
@@ -446,6 +448,9 @@
       "options": {
         "calculate": false,
         "cellGap": 1,
+        "cellValues": {
+          "unit": "reqps"
+        },
         "color": {
           "exponent": 0.5,
           "fill": "dark-orange",
@@ -465,16 +470,19 @@
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "auto",
+          "value": "Requests per second"
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "showColorScale": false,
           "yHistogram": false
         },
         "yAxis": {
+          "axisLabel": "duration",
           "axisPlacement": "left",
-          "reverse": false
+          "reverse": false,
+          "unit": "ms"
         }
       },
       "pluginVersion": "12.3.0",
