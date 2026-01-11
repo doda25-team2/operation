@@ -124,6 +124,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
+      "description": "The amount of classification results in the last `$__rate_interval` per class",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -208,7 +209,8 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(sms_classification_results_total[$__rate_interval])",
+          "expr": "sum by (result) (\r\n    increase(sms_classification_results_total[$__rate_interval])\r\n)",
+          "format": "time_series",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -216,7 +218,7 @@
           "refId": "SMS classification results"
         }
       ],
-      "title": "SMS classification results",
+      "title": "SMS classification results (increase)",
       "type": "timeseries"
     },
     {
