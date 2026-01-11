@@ -76,6 +76,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Ayush [operation#79](https://github.com/doda25-team2/operation/pull/79) -> Within extension.md, more details were added and sources were used in order to explain further on which extensions were proposed and how they will help improve. Furthermore, an experiment design was explained and how they would be measured using metrics such as the amount of pull requests closed etc. I also made sure that PRs that have been left open for a while were carefully checked and closed.
 
+- Nick [operation#82](https://github.com/doda25-team2/operation/pull/82) → Finalized the Grafana dashboard. Now displays 6 visualizations that use all custom metrics of the app, including timeseries, gauges and histograms with proper units.
+
 ### Week 8 (Jan 12th - Jan 18th)
 
 ### Week 9 (Jan 19th - Jan 25th)
