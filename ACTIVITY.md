@@ -66,12 +66,15 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Nick [operation#76](https://github.com/doda25-team2/operation/pull/76) → Fixed Prometheus's bundled Grafana ingress, added custom dashboard with two timeseries panels.
 - Justin - no work.
+- Ayush - no work.
   
 ### Week _ (Dec 22nd - Dec 28th)
 
 ### Week _ (Dec 29th - Jan 4th)
 
 ### Week 7 (Jan 5th - Jan 11th)
+
+- Ayush [operation#79](https://github.com/doda25-team2/operation/pull/79) -> Within extension.md, more details were added and sources were used in order to explain further on which extensions were proposed and how they will help improve. Furthermore, an experiment design was explained and how they would be measured using metrics such as the amount of pull requests closed etc. I also made sure that PRs that have been left open for a while were carefully checked and closed.
 
 ### Week 8 (Jan 12th - Jan 18th)
 
