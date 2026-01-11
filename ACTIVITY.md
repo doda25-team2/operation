@@ -80,6 +80,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
   
 - Justin [operation#83](https://github.com/doda25-team2/operation/pull/83) → In an effort to improve our documentation, I've added `mermaid` diagrams to `deployment`. These should show the components and how they interact together better.
 
+- George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
+
 ### Week 8 (Jan 12th - Jan 18th)
 
 ### Week 9 (Jan 19th - Jan 25th)
