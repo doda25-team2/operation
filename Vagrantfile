@@ -51,11 +51,21 @@ Vagrant.configure("2") do |config|
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "./ansible/ctrl.yaml"
       ansible.extra_vars = {
+        ctrl_ip: CTRL_IP
+      }
+    end
+
+    node.vm.provision "ansible" do |ansible|
+      ansible.playbook = "./ansible/finalization.yaml"
+      ansible.extra_vars = {
         ctrl_ip: CTRL_IP,
+        worker_count: WORKER_COUNT,
+        worker_ip_base: WORKER_IP_BASE
       }
     end
   end
 
+  # Worker nodes
   (1..WORKER_COUNT).each do |i|
     config.vm.define "node-#{i}" do |node|
       node.vm.hostname = "node-#{i}"
@@ -71,7 +81,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision "ansible" do |ansible|
         ansible.playbook = "./ansible/node.yaml"
         ansible.extra_vars = {
-          ctrl_hostname: "ctrl",
+          ctrl_hostname: "ctrl"
         }
       end
     end
