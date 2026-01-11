@@ -49,11 +49,11 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 5 (Dec 8th - Dec 14th)
 
-- Ayush[operation#64](https://github.com/doda25-team2/operation/pull/64) [operation#70](https://github.com/doda25-team2/operation/pull/70)-> This week I worked on assignment 3 in which I implemented the Alerting in prometheus in which one PrometheusRule was used which was that an alert is sent when the service receives more than 15 requests per minute for two minutes. For assignment 4, I worked on implementing the extension proposal documentation.
+- Ayush[operation#64](https://github.com/doda25-team2/operation/pull/64) [operation#70](https://github.com/doda25-team2/operation/pull/70)→ This week I worked on assignment 3 in which I implemented the Alerting in prometheus in which one PrometheusRule was used which was that an alert is sent when the service receives more than 15 requests per minute for two minutes. For assignment 4, I worked on implementing the extension proposal documentation.
 
 - George [app#8](https://github.com/doda25-team2/app/pull/8), [operation#65](https://github.com/doda25-team2/operation/pull/65) → Implemented custom Prometheus metrics endpoint in the app repository with 5 manually-created metrics (Counters, Gauge, Histograms with labels). Fixed Prometheus scraping by correcting Content-Type headers and ServiceMonitor configuration. Modified AlertManager and PrometheusRule settings (alert thresholds, query windows, webhook routing). Cleaned up monitoring configuration and updated README with access URLs and testing instructions.
 
-- Miguel [operation#68] (https://github.com/doda25-team2/operation/pull/68) -> implemented Istio shadow launch for the model-service using traffic mirroring with VirtualService and DestinationRule.
+- Miguel [operation#68] (https://github.com/doda25-team2/operation/pull/68) → implemented Istio shadow launch for the model-service using traffic mirroring with VirtualService and DestinationRule.
 
 - Nick [operation#71](https://github.com/doda25-team2/operation/pull/71), [operation#72](https://github.com/doda25-team2/operation/pull/72), [operation#73](https://github.com/doda25-team2/operation/pull/73) → Fixed deadlock when installing deployment Helm chart, removed overwritten DestinationRule, implemented A4 "Traffic Management" to route 90% of users to stable app deployment and 10% to canary deployment using Sticky Sessions.
 
@@ -74,9 +74,11 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 7 (Jan 5th - Jan 11th)
 
-- Ayush [operation#79](https://github.com/doda25-team2/operation/pull/79) -> Within extension.md, more details were added and sources were used in order to explain further on which extensions were proposed and how they will help improve. Furthermore, an experiment design was explained and how they would be measured using metrics such as the amount of pull requests closed etc. I also made sure that PRs that have been left open for a while were carefully checked and closed.
+- Ayush [operation#79](https://github.com/doda25-team2/operation/pull/79) → Within extension.md, more details were added and sources were used in order to explain further on which extensions were proposed and how they will help improve. Furthermore, an experiment design was explained and how they would be measured using metrics such as the amount of pull requests closed etc. I also made sure that PRs that have been left open for a while were carefully checked and closed.
 
 - Nick [operation#82](https://github.com/doda25-team2/operation/pull/82) → Finalized the Grafana dashboard. Now displays 6 visualizations that use all custom metrics of the app, including timeseries, gauges and histograms with proper units.
+  
+- Justin [operation#83](https://github.com/doda25-team2/operation/pull/83) → In an effort to improve our documentation, I've added `mermaid` diagrams to `deployment`. These should show the components and how they interact together better.
 
 ### Week 8 (Jan 12th - Jan 18th)
 
