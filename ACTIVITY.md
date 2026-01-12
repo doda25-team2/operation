@@ -67,6 +67,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Nick [operation#76](https://github.com/doda25-team2/operation/pull/76) → Fixed Prometheus's bundled Grafana ingress, added custom dashboard with two timeseries panels.
 - Justin - no work.
 - Ayush - no work.
+- Preethika - no work.
   
 ### Week _ (Dec 22nd - Dec 28th)
 
@@ -81,7 +82,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Justin [operation#83](https://github.com/doda25-team2/operation/pull/83) → In an effort to improve our documentation, I've added `mermaid` diagrams to `deployment`. These should show the components and how they interact together better.
 
 - George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
-
+- Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
 ### Week 8 (Jan 12th - Jan 18th)
 
 ### Week 9 (Jan 19th - Jan 25th)
