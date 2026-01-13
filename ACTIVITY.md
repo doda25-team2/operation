@@ -85,6 +85,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
 ### Week 8 (Jan 12th - Jan 18th)
 
+- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87)-> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continious-experiment.md.
+
 ### Week 9 (Jan 19th - Jan 25th)
 
 ### Week 10 (Jan 26th, 27th)
