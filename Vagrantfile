@@ -2,18 +2,25 @@ VAGRANT_BOX         = "bento/ubuntu-24.04"
 VAGRANT_BOX_VERSION = "202510.26.0"
 CTRL_IP             = "192.168.56.100"
 WORKER_IP_BASE      = "192.168.56."
-WORKER_COUNT        = 2      
+WORKER_COUNT        = 2
 
 CTRL_CPUS           = 2
-CTRL_MEMORY_MB      = 4096     
+CTRL_MEMORY_MB      = 4096
 
 WORKER_CPUS         = 2
-WORKER_MEMORY_MB    = 6144      
+WORKER_MEMORY_MB    = 6144
+
+# Shared storage for Kubernetes hostPath volumes
+SHARED_FOLDER       = "./shared"      
 
 Vagrant.configure("2") do |config|
   config.vm.box = VAGRANT_BOX
   config.vm.box_version = VAGRANT_BOX_VERSION
   config.vm.synced_folder ".", "/vagrant"
+
+  # Shared folder for cross-VM and cross-Pod persistent storage
+  # This enables Kubernetes hostPath volumes to share data across all nodes
+  config.vm.synced_folder SHARED_FOLDER, "/mnt/shared", create: true
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "./ansible/general.yaml"
