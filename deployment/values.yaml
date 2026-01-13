@@ -205,6 +205,12 @@ istio:
     image:
       repository: ghcr.io/doda25-team2/app
       tag: v1.3.1
+  rateLimiting:
+    enabled: true
+    maxTokens: 10
+    tokensPerFill: 10
+    fillInterval: 60s
+    perConnection: true
 
 # Prometheus 
 prometheus:
