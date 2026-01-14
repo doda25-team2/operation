@@ -83,9 +83,10 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
 - Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
+
 ### Week 8 (Jan 12th - Jan 18th)
 
-- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87)-> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continious-experiment.md.
+- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87) [operation#89](https://github.com/doda25-team2/operation/pull/89) -> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continious-experiment.md. Furthermore, a github workflow is added to automatically request review for any open PRs to determine whether this improves anything as part of the extension.
 
 ### Week 9 (Jan 19th - Jan 25th)
 
