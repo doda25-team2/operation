@@ -1,0 +1,35 @@
+name: Review PR automaticallly
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  reviewers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request.number;
+            const author = context.payload.pull_request.user.login;
+
+            const allUsers = [
+              "TechnologicNick",
+              "justinschembri",
+              "cookie232",
+              "markajino",
+              "preethika-ajay"
+              "ayushhhkha"
+            ];
+
+            const reviewers = allUsers.filter(u => u !== author);
+
+            await github.rest.pulls.requestReviewers({
+              owner,
+              repo,
+              pull_number: pr,
+              reviewers
+            });
