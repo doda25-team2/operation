@@ -1,4 +1,4 @@
-name: Review PR automaticallly
+name: Review PR automatically
 
 on:
   pull_request:
