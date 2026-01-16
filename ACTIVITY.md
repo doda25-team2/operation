@@ -86,7 +86,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 8 (Jan 12th - Jan 18th)
 
-- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87) [operation#89](https://github.com/doda25-team2/operation/pull/89) -> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continious-experiment.md. Furthermore, a github workflow is added to automatically request review for any open PRs to determine whether this improves anything as part of the extension.
+- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87) [operation#88](https://github.com/doda25-team2/operation/pull/88)[operation#89](https://github.com/doda25-team2/operation/pull/89) -> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continuous -experimentation.md documentation and added the necessary information. Furthermore, a github workflow is added to automatically request review for any open PRs to determine whether this improves anything as part of the extension.
 
 ### Week 9 (Jan 19th - Jan 25th)
 
