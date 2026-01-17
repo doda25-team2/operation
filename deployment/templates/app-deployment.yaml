@@ -65,12 +65,12 @@ spec:
             - name: APP_ENV
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "deployment.fullname" . }}-config
+                  name: app-config
                   key: APP_ENV
             - name: APP_FEATURE_FLAG
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "deployment.fullname" . }}-config
+                  name: app-config
                   key: APP_FEATURE_FLAG
 
           {{- with .Values.livenessProbe }}

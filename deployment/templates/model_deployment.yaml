@@ -56,6 +56,16 @@ spec:
               value: "http://model-service:8081"
             - name: MODEL_SERVICE_PORT
               value : "8081"
+            - name: CONFIG_TEST
+              valueFrom:
+                configMapKeyRef:
+                  name: model-configmap
+                  key: config_test
+            - name: DUMMY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: model-secret
+                  key: api_key
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
