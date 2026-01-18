@@ -90,6 +90,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Justin [model-service#11](https://github.com/doda25-team2/model-service/pull/11) → An update of the version control used in the `model-service` repository. This PR fixes versioning inconsistencies between git tags and pyproject.toml by enforcing it as a single source of truth, introduces an explicit and documented versioning scheme for ML models with manual major/minor/patch bumps during training, and adds structured metadata to trained models (with optional compatibility flags in the Docker image) so changes and compatibility can be clearly understood. Also updated the README!
 
+- George [operation#95](https://github.com/doda25-team2/operation/pull/95) → Implemented auto-generation of Ansible `inventory.cfg` file in Vagrantfile for A2 Excellent requirement. Inventory dynamically includes all active nodes (control + workers) with SSH key paths and scales automatically with WORKER_COUNT variable. Verified functionality with ansible-inventory and ansible ping on all nodes. Also made a change to the github action `autopr.yml`, which was facing a 403 error cause token had no writing permissions.
+
 ### Week 9 (Jan 19th - Jan 25th)
 
 ### Week 10 (Jan 26th, 27th)
