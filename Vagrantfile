@@ -18,6 +18,28 @@ SSH_HOST = ENV["SSH_HOST"]
 BOOT_TIMEOUT = ENV["BOOT_TIMEOUT"]
 
 Vagrant.configure("2") do |config|
+  # Generate Ansible inventory file for manual playbook runs
+  File.open("inventory.cfg", "w") do |f|
+    f.puts "# Auto-generated Ansible inventory"
+    f.puts "# Generated for #{WORKER_COUNT} worker node(s)"
+    f.puts ""
+    f.puts "[control]"
+    f.puts "ctrl ansible_host=#{CTRL_IP} ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/ctrl/virtualbox/private_key"
+    f.puts ""
+    f.puts "[workers]"
+    (1..WORKER_COUNT).each do |i|
+      worker_ip = "#{WORKER_IP_BASE}#{100 + i}"
+      f.puts "node-#{i} ansible_host=#{worker_ip} ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/node-#{i}/virtualbox/private_key"
+    end
+    f.puts ""
+    f.puts "[k8s_cluster:children]"
+    f.puts "control"
+    f.puts "workers"
+    f.puts ""
+    f.puts "[all:children]"
+    f.puts "k8s_cluster"
+  end
+
   config.vm.box = VAGRANT_BOX
   config.vm.box_version = VAGRANT_BOX_VERSION
   config.vm.synced_folder ".", "/vagrant"

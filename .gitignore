@@ -6,6 +6,9 @@
 admin.conf
 *.conf
 
+# Generated Ansible inventory
+inventory.cfg
+
 # Temporary files
 tmp*
 ctrl_id_ed25519*
