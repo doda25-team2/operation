@@ -84,7 +84,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
 - Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
 
-- Miguel [operation#78] (https://github.com/doda25-team2/operation/pull/78), added finalization playblook to the vagrant provision.
+- Miguel [operation#78](https://github.com/doda25-team2/operation/pull/78), added finalization playblook to the vagrant provision.
 
 ### Week 8 (Jan 12th - Jan 18th)
 
@@ -95,6 +95,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - George [operation#95](https://github.com/doda25-team2/operation/pull/95) → Implemented auto-generation of Ansible `inventory.cfg` file in Vagrantfile for A2 Excellent requirement. Inventory dynamically includes all active nodes (control + workers) with SSH key paths and scales automatically with WORKER_COUNT variable. Verified functionality with ansible-inventory and ansible ping on all nodes. Also made a change to the github action `autopr.yml`, which was facing a 403 error cause token had no writing permissions.
 
 - Nick [operation#96](https://github.com/doda25-team2/operation/pull/96) → Added documentation for deployment of the Kubernetes cluster using Vagrant and Ansible with clear step-by-step instructions and troubleshooting tips. Also documented how to run the application Helm chart with Minikube for local development and testing.
+
+- Miguel [operation#97](https://github.com/doda25-team2/operation/pull/97) -> Added some documentation on the countinous expermination with a general draft outlining an A/B testing experiment, including hypothesis, metrics, and decision process.
 
 ### Week 9 (Jan 19th - Jan 25th)
 
