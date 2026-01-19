@@ -84,7 +84,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
 - Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
 
--Miguel [operation#78] (https://github.com/doda25-team2/operation/pull/78), added finalization playblook to the vagrant provision.
+- Miguel [operation#78] (https://github.com/doda25-team2/operation/pull/78), added finalization playblook to the vagrant provision.
 
 ### Week 8 (Jan 12th - Jan 18th)
 
