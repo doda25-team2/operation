@@ -47,11 +47,10 @@ jobs:
                 title: "Midweek check failed",
                 body: `The midweek CI check failed.
 
-            The contributors ${userList} didn't open it yet pls open a PR ASAP.
-
+            The contributors ${userList} didn't open a PR ensure that it has been opened.`
               });
 
               console.log(`Missing PRs from: ${missingUsers.join(", ")}`);
             } else {
-              console.log("All users opened da PR :)");
+              console.log("All users opened the PR.");
             }
