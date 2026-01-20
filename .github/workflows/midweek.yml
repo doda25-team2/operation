@@ -44,13 +44,13 @@ jobs:
               await github.rest.issues.create({
                 owner,
                 repo,
-                title: "Midweek check failed",
+                title: "Midweek CI check failed",
                 body: `The midweek CI check failed.
 
-            The contributors ${userList} didn't open a PR ensure that it has been opened.`
+            The contributors ${userList} didn't open a PR. Please ensure a PR is opened.`
               });
 
               console.log(`Missing PRs from: ${missingUsers.join(", ")}`);
             } else {
-              console.log("All users opened the PR.");
+              console.log("All users opened a PR.");
             }
