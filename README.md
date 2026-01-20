@@ -12,7 +12,7 @@ This repository provides a simple docker compose setup to run the two services u
 docker compose up -d
 ```
 
-3. Open your browser at `http://localhost:8080` to access the `app` frontend.
+3. Open your browser at `http://localhost:8080/sms` to access the SMS checker application. (Note: `http://localhost:8080` shows a simple "Hello World" health check)
 
 To stop the services:
 
