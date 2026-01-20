@@ -24,12 +24,12 @@ Vagrant.configure("2") do |config|
     f.puts "# Generated for #{WORKER_COUNT} worker node(s)"
     f.puts ""
     f.puts "[control]"
-    f.puts "ctrl ansible_host=#{CTRL_IP} ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/ctrl/virtualbox/private_key"
+    f.puts "ctrl ansible_host=#{CTRL_IP} ansible_user=vagrant"
     f.puts ""
     f.puts "[workers]"
     (1..WORKER_COUNT).each do |i|
       worker_ip = "#{WORKER_IP_BASE}#{100 + i}"
-      f.puts "node-#{i} ansible_host=#{worker_ip} ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/node-#{i}/virtualbox/private_key"
+      f.puts "node-#{i} ansible_host=#{worker_ip} ansible_user=vagrant"
     end
     f.puts ""
     f.puts "[k8s_cluster:children]"
