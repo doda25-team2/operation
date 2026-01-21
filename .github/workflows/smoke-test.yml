@@ -83,6 +83,9 @@ jobs:
           
           echo "Waiting for pods to be ready..."
           kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=smoke-test --timeout=300s || true
+          
+          echo "Giving services extra time to initialize (model download, etc.)..."
+          sleep 30
 
       - name: Expose services and run health checks
         run: |
@@ -154,11 +157,11 @@ jobs:
           
           echo ""
           echo "=== App Logs ==="
-          kubectl logs -l app.kubernetes.io/name=app-deployment --tail=100 || true
+          kubectl logs -l app.kubernetes.io/name=app-devops-app --tail=200 || true
           
           echo ""
           echo "=== Model Service Logs ==="
-          kubectl logs -l app.kubernetes.io/name=model-deployment --tail=100 || true
+          kubectl logs -l app.kubernetes.io/name=model-devops-app --tail=200 || true
           
           echo ""
           echo "=== Events ==="
