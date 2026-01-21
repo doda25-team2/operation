@@ -65,6 +65,7 @@ jobs:
             --set imagePullSecrets[0].name=ghcr-secret \
             --set services.type=NodePort \
             --set ingress.enabled=false \
+            --set istio.enabled=false \
             --set istio.canary.enabled=false \
             --set prometheus.enabled=false \
             --set kube-prometheus-stack.enabled=false \

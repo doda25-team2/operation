@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -15,3 +16,4 @@ spec:
         subset: shadow
       mirrorPercentage:
         value: 100
+{{- end }}
