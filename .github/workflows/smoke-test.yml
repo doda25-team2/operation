@@ -89,18 +89,23 @@ jobs:
           echo "Getting service info..."
           kubectl get svc
           
-          # Get the app service URL via minikube
-          APP_URL=$(minikube service app --url 2>/dev/null || echo "")
+          # Use kubectl port-forward for ClusterIP services
+          echo "Starting port-forward for app service..."
+          kubectl port-forward svc/app 8080:80 &
+          APP_PF_PID=$!
           
-          if [ -z "$APP_URL" ]; then
-            echo "Could not get app URL via minikube service, using port-forward..."
-            kubectl port-forward svc/app 8080:80 &
-            PF_PID=$!
-            sleep 5
-            APP_URL="http://localhost:8080"
-          fi
+          echo "Starting port-forward for model-service..."
+          kubectl port-forward svc/model-service 8081:8081 &
+          MODEL_PF_PID=$!
+          
+          # Wait for port-forwards to be ready
+          sleep 10
+          
+          APP_URL="http://localhost:8080"
+          MODEL_URL="http://localhost:8081"
           
           echo "App URL: $APP_URL"
+          echo "Model service URL: $MODEL_URL"
           
           # Test splash page
           echo "Testing splash page..."
@@ -114,18 +119,6 @@ jobs:
             SPLASH_FAILED=1
           fi
           
-          # Test model service API
-          MODEL_URL=$(minikube service model-service --url 2>/dev/null || echo "")
-          
-          if [ -z "$MODEL_URL" ]; then
-            echo "Could not get model-service URL via minikube service, using port-forward..."
-            kubectl port-forward svc/model-service 8081:8081 &
-            sleep 5
-            MODEL_URL="http://localhost:8081"
-          fi
-          
-          echo "Model service URL: $MODEL_URL"
-          
           echo "Testing model service health/ping..."
           MODEL_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$MODEL_URL/" || echo "000")
           echo "Model service HTTP status: $MODEL_CODE"
@@ -137,10 +130,9 @@ jobs:
             MODEL_FAILED=1
           fi
           
-          # Kill port-forward if started
-          if [ -n "$PF_PID" ]; then
-            kill $PF_PID 2>/dev/null || true
-          fi
+          # Kill port-forwards
+          kill $APP_PF_PID 2>/dev/null || true
+          kill $MODEL_PF_PID 2>/dev/null || true
           
           # Final result
           if [ "$SPLASH_FAILED" = "1" ] || [ "$MODEL_FAILED" = "1" ]; then
