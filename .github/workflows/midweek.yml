@@ -1,0 +1,56 @@
+name: midweek CI checkpoint for checking pr participation part of extension proposal
+on:
+  schedule:
+    - cron: '59 23 * * 3'
+  workflow_dispatch:
+
+jobs:
+  check-prs:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const requiredUsers = [
+              "TechnologicNick",
+              "justinschembri",
+              "cookie232",
+              "markajino",
+              "preethika-ajay",
+              "ayushhhkha"
+            ];
+
+            const { data: pulls } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: "open"
+            });
+
+            const prAuthors = [...new Set(pulls.map(pr => pr.user.login))];
+
+            const missingUsers = requiredUsers.filter(
+              user => !prAuthors.includes(user)
+            );
+
+            if (missingUsers.length > 0) {
+              const userList = missingUsers.map(u => `- @${u}`).join("\n");
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: "Midweek CI check failed",
+                body: `The midweek CI check failed.
+
+            The contributors ${userList} didn't open a PR. Please ensure a PR is opened.`
+              });
+
+              console.log(`Missing PRs from: ${missingUsers.join(", ")}`);
+            } else {
+              console.log("All users opened a PR.");
+            }

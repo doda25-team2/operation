@@ -10,6 +10,102 @@ Istio is used to:
 
 ---
 
+## Deploying the Kubernetes cluster
+
+To deploy the Kubernetes cluster, run the following command from the `operation` directory:
+
+```bash
+vagrant up
+```
+
+If the VMs take too long to boot, you can increase the timeout by setting the `BOOT_TIMEOUT` environment variable (default is 300 seconds). It might also help to open Oracle VirtualBox Manager and to click on each VM to see its boot progress. For example, to set a timeout of 600 seconds, run:
+
+```bash
+BOOT_TIMEOUT=600 vagrant up
+```
+
+To tear down the cluster, run:
+
+```bash
+vagrant destroy --force
+```
+
+### Deploying on Windows hosts
+
+If using Windows as the host OS, ensure that you have [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) installed and configured, and that you are using the [mirrored networking mode](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking). This is only available in Windows 11. Then, run the following command from a WSL2 terminal to configure Vagrant to access Windows files and VirtualBox:
+
+```bash
+export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
+export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/Users/$(powershell.exe 'Write-Host -NoNewLine $env:UserName')/"
+export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
+export SSH_HOST="127.0.0.1"
+```
+
+You can now run `vagrant up` as normal from the WSL2 terminal.
+
+### Applying `finalization.yaml` manually
+
+When the cluster is provisioned, the `finalization.yaml` manifest is already automatically applied. If you need to apply it manually (e.g., after making changes), run:
+
+```bash
+ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yaml
+```
+
+Or if using WSL2 on Windows:
+
+```bash
+ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yaml
+```
+
+> [!CAUTION]
+> TODO: Check if this is still needed after https://github.com/doda25-team2/operation/pull/95 is merged
+
+## Deploying the application in Minikube
+
+> [!NOTE]
+> Using Minikube is intended for local development and testing only. For production deployments, use the Vagrant-based Kubernetes cluster as described above.
+
+To facilitate local development and testing, you can deploy the application on a Minikube cluster. Make sure you have [Minikube](https://minikube.sigs.k8s.io/docs/start/), [Helm](https://helm.sh/docs/intro/install/), and [kubectl](https://kubernetes.io/docs/tasks/tools/) installed and ensure your [Docker daemon is running](https://docs.docker.com/get-docker/).
+
+1. Start Minikube with the Calico CNI plugin and enable the necessary addons:
+
+```bash
+minikube start --driver=docker --cni=calico
+minikube addons enable ingress
+minikube addons enable ingress-dns
+```
+
+2. Deploy the application Helm chart:
+
+```bash
+helm install deployment ./deployment
+```
+
+3. To access the application from outside the Minikube cluster, configure the Ingress NGINX controller service as a LoadBalancer instead of NodePort, and run `minikube tunnel` in a separate terminal to allocate an external IP:
+
+```bash
+kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
+minikube tunnel
+```
+
+4. Add the following entry to your `/etc/hosts` file to map the application hostname to the loopback address:
+
+```
+127.0.0.1 sms-checker.local
+127.0.0.1 grafana.local
+```
+
+5. Wait for the pods to be in the `Running` state:
+
+```bash
+kubectl get pods
+```
+
+6. Access the application at http://sms-checker.local.
+
+> [!CAUTION]
+> TODO: Add Istio installation steps for Minikube deployment
+
 ## Deployed Components
 
 The complete deployment architecture, including all Kubernetes and Istio resources and their relationships, is visualized in the [Deployment Architecture](#deployment-architecture) diagram below.
@@ -191,6 +287,7 @@ This realizes a **shadow launch**: the shadow model processes the same inputs, b
   - `HighRequestRate` when request rate exceeds a threshold for a sustained period.
 
 ### Grafana
+- Available at `http://grafana.local` with username `admin` and the password specified in [`.kube-prometheus-stack.grafana.adminPassword`](../deployment/values.yaml).
 - Queries Prometheus for dashboards and comparisons between app variants.
 - Supports experiment monitoring by visualizing request rate, latency, and classification outcomes.
 

@@ -16,7 +16,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 [800cfab](https://github.com/doda25-team2/app/commit/800cfab0db8cb48fe87d65cdde467eff2d395d14), In the app repository: updated container configuration to support flexible environment variables, modified the controller to read the model service URL dynamically instead of using a fixed host.
 [80428da](https://github.com/doda25-team2/model-service/commit/02b7a6b839b5ddc210a2d70867e860a4297fe384), In operation repository did a simple docker compose to launch the entire system from one base docker-compose.yml.
 
-- Preethika: [model-service#7](https://github.com/doda25-team2/model-service/pull/7), [model-service#6](https://github.com/doda25-team2/model-service/pull/6)
+- Preethika: [model-service#7](https://github.com/doda25-team2/model-service/pull/7), [model-service#6](https://github.com/doda25-team2/model-service/pull/6) Worked on F9 and F10 by implementing a GitHub Actions workflow for on-demand automated model training, versioning, and release, publishing trained artifacts via GitHub Releases for unauthenticated access, and refactoring model-service to eliminate hard-coded models, enabling dynamic model loading via volume mounts with fallback download on startup.
 
 - Nick: I implemented F1 and F2. As the release workflow trigger only works when it is present on the main branch, I pushed directly to main for F2, and the commits can be viewed [here](https://github.com/doda25-team2/lib-version/compare/90cc6a99f3564f92f41765ec9012eb211c342319...29748c5dfa95a2c5e5c8b2e5595be181cc9df4e2). For F1, see [app#7](https://github.com/doda25-team2/app/pull/7).
 
@@ -38,7 +38,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 ### Week 4 (Dec 1st - Dec 7th)
 
 - Ayush [operation#44](https://github.com/doda25-team2/operation/pull/44) [operation#45](https://github.com/doda25-team2/operation/pull/45) [operation#48](https://github.com/doda25-team2/operation/pull/48)-> Implemented the initial helm creation for the Helm Chart. Also added a small fix to make backend work with frontend ensuring ham and spam return the correct output. Also worked on the installation of the prometheus and the ServiceMonitor to bind the apps.
-- Preethika [operation#45](https://github.com/doda25-team2/operation/pull/45) -> implemented bringing up services with kubernetes(Helm) and made all the services to start up from one helm folder for Assignment 3.
+- Preethika [operation#45](https://github.com/doda25-team2/operation/pull/45) -> For Assignment 3, I used Helm to implement Kubernetes-based deployment, combining all services into a single Helm chart that allowed for one-command cluster setup with uniform configuration, service dependencies, and version control.
 - Justin [operation#47](https://github.com/doda25-team2/operation/pull/47) → a very humble introduction of `grafana`. PR was created _before_ prometheus code was ready so it doesn't do much other than take one to a splash page.
 
 - Miguel [0f3ab59](https://github.com/doda25-team2/operation/pull/46) -> extended helm chart to support application level configuration, added a `config map` and `secret` placeholder for SMTP credentials, also split up the tasks and created the issues on projects for A3
@@ -58,7 +58,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Nick [operation#71](https://github.com/doda25-team2/operation/pull/71), [operation#72](https://github.com/doda25-team2/operation/pull/72), [operation#73](https://github.com/doda25-team2/operation/pull/73) → Fixed deadlock when installing deployment Helm chart, removed overwritten DestinationRule, implemented A4 "Traffic Management" to route 90% of users to stable app deployment and 10% to canary deployment using Sticky Sessions.
 
 - Justin [operation#66](https://github.com/doda25-team2/operation/pull/67) → Add and test `istio` installation to the `finalization.yml` playbook.
-- Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added deployment instructions and initial routing information.
+- Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added deployment instructions and initial routing information to deployment.md.
 
 ### Week 6 (Dec 15th - Dec 21nd)
 
@@ -84,9 +84,21 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - George [operation#84](https://github.com/doda25-team2/operation/pull/84), [operation#86](https://github.com/doda25-team2/operation/pull/86) → Make containerd config file idempotent by using the ansible handler pattern. Removed the unnecessary `operation/grafana/` since it is enabled via `kube-prometheus-stack`.
 - Preethika [operation#77]https://github.com/doda25-team2/operation/pull/77) -> Built on the existing deployment documentation making it more extensive. Wrote more detailed explanations on canary testing, request flow and deployment hierarchy.
 
+- Miguel [operation#78](https://github.com/doda25-team2/operation/pull/78), added finalization playblook to the vagrant provision.
+
 ### Week 8 (Jan 12th - Jan 18th)
 
-- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87) [operation#88](https://github.com/doda25-team2/operation/pull/88)[operation#89](https://github.com/doda25-team2/operation/pull/89) -> For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continuous -experimentation.md documentation and added the necessary information. Furthermore, a github workflow is added to automatically request review for any open PRs to determine whether this improves anything as part of the extension.
+- Ayush [operation#87](https://github.com/doda25-team2/operation/pull/87) [operation#88](https://github.com/doda25-team2/operation/pull/88)[operation#89](https://github.com/doda25-team2/operation/pull/89) → For the additional use cases, the rate limiting has been implemented in which this ensures that the anyone that send 10 requests or more will be blocked and this is shown with the status being 200 or 429. Also worked on the continuous -experimentation.md documentation and added the necessary information. Furthermore, a github workflow is added to automatically request review for any open PRs to determine whether this improves anything as part of the extension.
+
+- Preethika [operation#92](https://github.com/doda25-team2/operation/pull/92) added Kubernetes Secrets and ConfigMaps for the model-service and app-service, fixed issues in existing Secrets to ensure correct configuration, aligned environment variables across services, and resolved startup problems caused by misconfigured or missing secret references.
+
+- Justin [model-service#11](https://github.com/doda25-team2/model-service/pull/11) → An update of the version control used in the `model-service` repository. This PR fixes versioning inconsistencies between git tags and pyproject.toml by enforcing it as a single source of truth, introduces an explicit and documented versioning scheme for ML models with manual major/minor/patch bumps during training, and adds structured metadata to trained models (with optional compatibility flags in the Docker image) so changes and compatibility can be clearly understood. Also updated the README!
+
+- George [operation#95](https://github.com/doda25-team2/operation/pull/95) → Implemented auto-generation of Ansible `inventory.cfg` file in Vagrantfile for A2 Excellent requirement. Inventory dynamically includes all active nodes (control + workers) with SSH key paths and scales automatically with WORKER_COUNT variable. Verified functionality with ansible-inventory and ansible ping on all nodes. Also made a change to the github action `autopr.yml`, which was facing a 403 error cause token had no writing permissions.
+
+- Nick [operation#96](https://github.com/doda25-team2/operation/pull/96) → Added documentation for deployment of the Kubernetes cluster using Vagrant and Ansible with clear step-by-step instructions and troubleshooting tips. Also documented how to run the application Helm chart with Minikube for local development and testing.
+
+- Miguel [operation#97](https://github.com/doda25-team2/operation/pull/97) -> Added some documentation on the countinous expermination with a general draft outlining an A/B testing experiment, including hypothesis, metrics, and decision process.
 
 ### Week 9 (Jan 19th - Jan 25th)
 

@@ -11,12 +11,19 @@ WORKER_CPUS         = 2
 WORKER_MEMORY_MB    = 6144
 
 # Shared storage for Kubernetes hostPath volumes
-SHARED_FOLDER       = "./shared"      
+SHARED_FOLDER       = "./shared"
+
+# Optional: custom SSH host and boot timeout values
+SSH_HOST = ENV["SSH_HOST"]
+BOOT_TIMEOUT = ENV["BOOT_TIMEOUT"]
 
 Vagrant.configure("2") do |config|
   config.vm.box = VAGRANT_BOX
   config.vm.box_version = VAGRANT_BOX_VERSION
   config.vm.synced_folder ".", "/vagrant"
+
+  config.ssh.host = SSH_HOST if SSH_HOST
+  config.vm.boot_timeout = BOOT_TIMEOUT.to_i if BOOT_TIMEOUT
 
   # Shared folder for cross-VM and cross-Pod persistent storage
   # This enables Kubernetes hostPath volumes to share data across all nodes
