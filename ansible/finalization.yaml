@@ -4,23 +4,24 @@
 # or if using WSL:
 # ansible-playbook -i ./ansible/inventory-wsl.ini ./ansible/finalization.yaml
 
-- hosts: all
-  become: yes
-  gather_facts: yes
+- name: Finalize cluster setup
+  hosts: all
+  become: true
+  gather_facts: true
 
   vars:
     metallb_version: "0.14.9"
     metallb_ip_range: "192.168.56.90-192.168.56.99"
     ingress_nginx_controller_ip: "192.168.56.95"
     istio_version: "1.25.2"
-    
+
   environment:
     KUBECONFIG: /home/vagrant/.kube/config
 
   tasks:
     # Step 20: Install MetalLB
     - name: Download MetalLB native manifest
-      get_url:
+      ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/metallb/metallb/v{{ metallb_version }}/config/manifests/metallb-native.yaml"
         dest: /tmp/metallb-native.yaml
         mode: '0644'
@@ -28,14 +29,16 @@
         - metallb
 
     - name: Apply MetalLB manifest
-      command: kubectl apply -f /tmp/metallb-native.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/metallb-native.yaml
       environment:
         KUBECONFIG: /home/vagrant/.kube/config
+      register: metallb_apply
+      changed_when: '"configured" in metallb_apply.stdout or "created" in metallb_apply.stdout'
       tags:
         - metallb
 
     - name: Wait for MetalLB controller to be ready
-      command: >
+      ansible.builtin.command: >
         kubectl wait -n metallb-system
         -l app=metallb,component=controller
         --for=condition=ready pod
@@ -44,18 +47,20 @@
       delay: 10
       register: metallb_wait
       until: metallb_wait.rc == 0
+      changed_when: false
       tags:
         - metallb
 
     # This is a workaround for the famous Failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io"
     - name: Temporarily delete webhook configuration to allow resource creation
-      command: kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
-      ignore_errors: yes
+      ansible.builtin.command: kubectl delete validatingwebhookconfiguration metallb-webhook-configuration
+      ignore_errors: true
+      changed_when: false
       tags:
         - metallb
 
     - name: Copy MetalLB IPAddressPool manifest
-      copy:
+      ansible.builtin.copy:
         src: ../k8s/metallb-ippool.yaml
         dest: /tmp/metallb-ippool.yaml
         mode: '0644'
@@ -63,12 +68,14 @@
         - metallb
 
     - name: Apply MetalLB IPAddressPool
-      command: kubectl apply -f /tmp/metallb-ippool.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/metallb-ippool.yaml
+      register: metallb_ippool_apply
+      changed_when: '"configured" in metallb_ippool_apply.stdout or "created" in metallb_ippool_apply.stdout'
       tags:
         - metallb
 
     - name: Copy MetalLB L2Advertisement manifest
-      copy:
+      ansible.builtin.copy:
         src: ../k8s/metallb-l2advert.yaml
         dest: /tmp/metallb-l2advert.yaml
         mode: '0644'
@@ -77,13 +84,15 @@
 
     - name: Apply MetalLB L2Advertisement
       become_user: vagrant
-      command: kubectl apply -f /tmp/metallb-l2advert.yaml
+      ansible.builtin.command: kubectl apply -f /tmp/metallb-l2advert.yaml
+      register: metallb_l2_apply
+      changed_when: '"configured" in metallb_l2_apply.stdout or "created" in metallb_l2_apply.stdout'
       tags:
         - metallb
-      
+
     # Step 21: Install the Nginx Ingress Controller
     - name: Ensure ingress-nginx Helm repository is present
-      command: >
+      ansible.builtin.command: >
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
       register: add_ingress_repo
       failed_when: add_ingress_repo.rc != 0 and
@@ -93,12 +102,13 @@
         - ingress
 
     - name: Refresh Helm repositories cache
-      command: helm repo update
+      ansible.builtin.command: helm repo update
+      changed_when: false
       tags:
         - ingress
 
     - name: Verify existing ingress-nginx installation
-      command: helm status ingress-nginx -n ingress-nginx
+      ansible.builtin.command: helm status ingress-nginx -n ingress-nginx
       register: ingress_status
       changed_when: false
       failed_when: false
@@ -106,17 +116,18 @@
         - ingress
 
     - name: Deploy or upgrade NGINX Ingress Controller
-      command: >
+      ansible.builtin.command: >
         helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx
         --namespace ingress-nginx
         --create-namespace
         --set controller.service.loadBalancerIP={{ ingress_nginx_controller_ip }}
       when: ingress_status.rc != 0
+      changed_when: true
       tags:
         - ingress
 
     - name: Wait for ingress controller pods to become Ready
-      command: >
+      ansible.builtin.command: >
         kubectl wait -n ingress-nginx pod
         --selector=app.kubernetes.io/component=controller
         --for=condition=Ready
@@ -125,12 +136,13 @@
       delay: 15
       register: ingress_ready
       until: ingress_ready.rc == 0
+      changed_when: false
       tags:
         - ingress
 
     # Step 22: Install Kubernetes Dashboard
     - name: Ensure kubernetes-dashboard Helm repository is present
-      command: >
+      ansible.builtin.command: >
         helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
       register: add_dashboard_repo
       failed_when: add_dashboard_repo.rc != 0 and
@@ -140,22 +152,25 @@
         - dashboard
 
     - name: Refresh Helm repositories cache for dashboard
-      command: helm repo update
+      ansible.builtin.command: helm repo update
+      changed_when: false
       tags:
         - dashboard
 
     - name: Deploy or upgrade Kubernetes Dashboard
-      command: >
+      ansible.builtin.command: >
         helm upgrade --install kubernetes-dashboard ./kubernetes-dashboard
         --namespace kubernetes-dashboard
         --create-namespace
       args:
         chdir: /vagrant
+      register: dashboard_deploy
+      changed_when: true
       tags:
         - dashboard
 
     - name: Wait for dashboard pods to become Ready
-      command: >
+      ansible.builtin.command: >
         kubectl wait -n kubernetes-dashboard pod
         --selector=app.kubernetes.io/part-of=kubernetes-dashboard
         --for=condition=Ready
@@ -164,25 +179,26 @@
       delay: 15
       register: dashboard_ready
       until: dashboard_ready.rc == 0
+      changed_when: false
       tags:
         - dashboard
 
     # Step 23: Install Istio
     - name: Detect system architecture
-      command: uname -m
+      ansible.builtin.command: uname -m
       register: system_arch
       changed_when: false
       tags:
         - istio
 
     - name: Set architecture suffix for istioctl download
-      set_fact:
+      ansible.builtin.set_fact:
         istio_arch: "{{ 'arm64' if system_arch.stdout == 'aarch64' else 'amd64' }}"
       tags:
         - istio
 
     - name: Check if istioctl is already installed
-      command: which istioctl
+      ansible.builtin.command: which istioctl
       register: istioctl_check
       changed_when: false
       failed_when: false
@@ -203,14 +219,14 @@
       ansible.builtin.unarchive:
         src: /tmp/istioctl-{{ istio_version }}-linux-{{ istio_arch }}.tar.gz
         dest: /usr/local/bin
-        remote_src: yes
+        remote_src: true
         creates: /usr/local/bin/istioctl
         mode: '0755'
       tags:
         - istio
 
     - name: Copy IstioOperator manifest
-      copy:
+      ansible.builtin.copy:
         src: ../k8s/istio-operator.yaml
         dest: /tmp/istio-operator.yaml
         mode: '0644'
@@ -218,18 +234,29 @@
         - istio
 
     - name: Install Istio with default profile
-      command: istioctl install -y -f /tmp/istio-operator.yaml
+      ansible.builtin.command: istioctl install -y -f /tmp/istio-operator.yaml
+      register: istio_install
+      changed_when: true
       tags:
         - istio
 
     - name: Install Istio addons - prometheus
-      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/prometheus.yaml
+      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/prometheus.yaml
+      register: istio_prometheus
+      changed_when: '"configured" in istio_prometheus.stdout or "created" in istio_prometheus.stdout'
 
     - name: Install Istio addons - jaeger
-      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/jaeger.yaml
+      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/jaeger.yaml
+      register: istio_jaeger
+      changed_when: '"configured" in istio_jaeger.stdout or "created" in istio_jaeger.stdout'
 
     - name: Install Istio addons - kiali
-      command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/kiali.yaml
+      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/istio/istio/{{ istio_version }}/samples/addons/kiali.yaml
+      register: istio_kiali
+      changed_when: '"configured" in istio_kiali.stdout or "created" in istio_kiali.stdout'
 
     - name: Enable istio
-      command: kubectl label ns default istio-injection=enabled
+      ansible.builtin.command: kubectl label ns default istio-injection=enabled
+      register: istio_label
+      changed_when: '"labeled" in istio_label.stdout'
+      failed_when: istio_label.rc != 0 and "already has a value" not in istio_label.stderr

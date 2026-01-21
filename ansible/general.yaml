@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Prepare nodes for Kubernetes
+  hosts: all
   become: true
   vars:
     ssh_keys_dir: "../ssh-keys"
@@ -29,10 +30,11 @@
         - "{{ ssh_keys_dir }}/*.pub"
 
     - name: Disable swap
-      command: swapoff -a
+      ansible.builtin.command: swapoff -a
+      changed_when: false
 
     - name: Remove swap from fstab
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/fstab
         regexp: '^.*swap.*$'
         state: absent
@@ -41,7 +43,7 @@
       ansible.builtin.mount:
         name: swap
         fstype: swap
-        state: absent       
+        state: absent
 
     - name: Ensure Kubernetes kernel modules are configured to load at boot
       ansible.builtin.copy:
@@ -54,12 +56,12 @@
         mode: '0644'
 
     - name: Ensure overlay kernel module is loaded
-      modprobe:
+      community.general.modprobe:
         name: overlay
         state: present
 
     - name: Ensure br_netfilter kernel module is loaded
-      modprobe:
+      community.general.modprobe:
         name: br_netfilter
         state: present
 
@@ -68,24 +70,24 @@
         name: net.ipv4.ip_forward
         value: '1'
         state: present
-        reload: yes
-        sysctl_set: yes
+        reload: true
+        sysctl_set: true
 
     - name: Enable bridged iptables
       ansible.builtin.sysctl:
         name: net.bridge.bridge-nf-call-iptables
         value: '1'
         state: present
-        reload: yes
-        sysctl_set: yes
+        reload: true
+        sysctl_set: true
 
     - name: Enable bridged ip6tables
       ansible.builtin.sysctl:
         name: net.bridge.bridge-nf-call-ip6tables
         value: '1'
         state: present
-        reload: yes
-        sysctl_set: yes
+        reload: true
+        sysctl_set: true
 
     - name: Insert hosts block
       ansible.builtin.template:
@@ -143,7 +145,7 @@
 
     - name: Update apt cache
       ansible.builtin.apt:
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 3600
 
     # ----------------------------
@@ -186,30 +188,30 @@
         path: /etc/containerd/config.toml
         regexp: '^\s*disable_apparmor\s*=\s*false'
         line: '    disable_apparmor = true'
-        backrefs: yes
+        backrefs: true
 
     - name: Set pause sandbox image to registry.k8s.io/pause:3.10
       ansible.builtin.lineinfile:
         path: /etc/containerd/config.toml
         regexp: '^\s*sandbox_image\s*=\s*".*"'
         line: '    sandbox_image = "registry.k8s.io/pause:3.10"'
-        backrefs: yes
+        backrefs: true
 
     - name: Enable SystemdCgroup in containerd
       ansible.builtin.lineinfile:
         path: /etc/containerd/config.toml
         regexp: '^\s*SystemdCgroup\s*=\s*false'
         line: '            SystemdCgroup = true'
-        backrefs: yes
+        backrefs: true
 
     - name: Restart containerd with new configuration
       ansible.builtin.service:
         name: containerd
         state: restarted
-        enabled: yes
+        enabled: true
 
     - name: Ensure kubelet is enabled and started
-      service:
+      ansible.builtin.service:
         name: kubelet
         state: started
-        enabled: yes
+        enabled: true
