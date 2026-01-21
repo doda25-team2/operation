@@ -62,8 +62,8 @@ jobs:
         run: |
           helm dependency update deployment/
           helm upgrade --install smoke-test deployment/ \
-            --set image.app.tag=${{ inputs.app_image_tag }} \
-            --set image.model.tag=${{ inputs.model_image_tag }} \
+            --set image.app.tag=${{ inputs.app_image_tag || 'latest' }} \
+            --set image.model.tag=${{ inputs.model_image_tag || 'latest' }} \
             --set imagePullSecrets[0].name=ghcr-secret \
             --set services.type=NodePort \
             --set ingress.enabled=false \
