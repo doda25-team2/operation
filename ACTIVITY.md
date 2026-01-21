@@ -103,6 +103,8 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 ### Week 9 (Jan 19th - Jan 25th)
 
 - Justin [operation#100](https://github.com/doda25-team2/operation/pull/100), [operation#101](https://github.com/doda25-team2/operation/pull/101), [model-service#12](https://github.com/doda25-team2/model-service/pull/12) → #100 and #101 are related PRs which introduce a smoke-test workflow to the operations repository which is called whenever a PR is requested. While not a full integration test, this workflow does mimic the helm deployment aspects and shows that: at least, we can get to the splash page of the application. #12 may appear trivial, but it was a needed step during testing: the smoke-test was calling the latest tag, but this was broken (probably after I dumped old container artefacts which, for some reason, `latest` was still pointing too.)
+- Ayush [operation#99](https://github.com/doda25-team2/operation/pull/98) -> A github workflow was created which is for the midweek CI checkpoint as part of the extension proposal in which this ensures that it runs at the end of every Wednesday, it checks if all team members opened a PR and if any is missing creates an issue. Furthermore, extensive work was done in order to finish the presentation due next week. 
+
 
 ### Week 10 (Jan 26th, 27th)
 
