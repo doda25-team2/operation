@@ -1,0 +1,71 @@
+name: Ansible Lint and Syntax Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ansible-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible and ansible-lint
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Run ansible-lint on all playbooks
+        working-directory: ansible
+        run: |
+          ansible-lint general.yaml ctrl.yaml node.yaml finalization.yaml
+
+      - name: Syntax check - general.yaml
+        working-directory: ansible
+        run: |
+          ansible-playbook --syntax-check general.yaml
+
+      - name: Syntax check - ctrl.yaml
+        working-directory: ansible
+        run: |
+          ansible-playbook --syntax-check ctrl.yaml
+
+      - name: Syntax check - node.yaml
+        working-directory: ansible
+        run: |
+          ansible-playbook --syntax-check node.yaml
+
+      - name: Syntax check - finalization.yaml
+        working-directory: ansible
+        run: |
+          ansible-playbook --syntax-check finalization.yaml
+
+      - name: Validate Jinja2 templates
+        working-directory: ansible
+        run: |
+          python3 -c "
+          from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
+          import sys
+          import os
+
+          env = Environment(loader=FileSystemLoader('templates'))
+          errors = []
+
+          for template_file in os.listdir('templates'):
+              if template_file.endswith('.j2'):
+                  try:
+                      env.get_template(template_file)
+                      print(f'OK: {template_file}')
+                  except TemplateSyntaxError as e:
+                      errors.append(f'ERROR: {template_file}: {e}')
+                      print(f'ERROR: {template_file}: {e}')
+
+          if errors:
+              sys.exit(1)
+          print('All Jinja2 templates are valid.')
+          "
