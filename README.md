@@ -1,6 +1,6 @@
 # Operations and Deployment Routes
 
-This is the operations repository of the `Spamchecker` application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to this organization.
+This is the operations repository of the `Spamchecker` application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to Team 2 of the TUD DoDa Team.
 
 The application has two major deployment routes:
 
