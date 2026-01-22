@@ -1,16 +1,41 @@
 # Operation: Run the App + Model Service with Docker Compose
 
-This repository provides a simple docker compose setup to run the two services used in the project:
+This is the operations repository of the `Spamchecker` application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to this organization.
 
+The application has two major deployment routes:
 
-**Quick start**
+1. `Docker` → [see here](#docker-deployments)
+2. `Kubernetes` → [see here]()
 
-1. Make sure Docker is running on your machine.
-2. From this repository root run:
+We also provide Vagrant and Ansible infrastructure configurations for deployments using virutal machines. 
+
+### Global System Requirements
+
+Irrespective of the deployment route, you must have cloned this repository and have `cd` into the repo:
+
+```
+git clone git@github.com:doda25-team2/operation.git sms-checker-operations
+cd sms-checker-operations
+```
+
+## Docker Deployments
+
+Below are the details for deploying using `Docker`
+
+### Quick Docker Setup:
+
+Your system must docker` and `docker compose` and running,
+
+Run:
 
 ```bash
 docker compose up -d
 ```
+
+> [!WARNING]
+> By default the application binds to port `8080` which you might have in use.
+> If this is the case, we strongly advise that you set up environment variables as
+> described in [Customizing your Docker Deployment](#customizing-your-docker-deployment).
 
 3. Open your browser at `http://localhost:8080` to access the `app` frontend.
 
@@ -20,7 +45,7 @@ To stop the services:
 docker compose down
 ```
 
-**Customizing image versions**
+### Customizing your Docker Deployment
 
 You can override image versions and ports using environment variables. Copy `.env.example` to `.env` and customize:
 
