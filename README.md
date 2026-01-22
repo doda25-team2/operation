@@ -24,7 +24,7 @@ Below are the details for deploying using `Docker`
 
 ### Quick Docker Setup:
 
-Your system must docker` and `docker compose` and running,
+Your system must include `docker`, `docker compose` and both must be running,
 
 Run:
 
