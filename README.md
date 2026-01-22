@@ -1,18 +1,45 @@
-# Operation: Run the App + Model Service with Docker Compose
+# Operations and Deployment Routes
 
-This repository provides a simple docker compose setup to run the two services used in the project:
+This is the operations repository of the `Spamchecker` application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to Team 2 of the TUD DoDa Team.
 
+The application has two major deployment routes:
 
-**Quick start**
+1. `Docker` → [see here](#docker-deployments)
+2. `Kubernetes` → [see here]()
 
-1. Make sure Docker is running on your machine.
-2. From this repository root run:
+We also provide Vagrant and Ansible infrastructure configurations for deployments using virutal machines. 
+
+### Global System Requirements
+
+Irrespective of the deployment route, you must have cloned this repository and have `cd` into the repo:
+
+```
+git clone git@github.com:doda25-team2/operation.git sms-checker-operations
+cd sms-checker-operations
+```
+
+# Docker Deployments
+
+Below are the details for deploying using `Docker`
+
+### Quick Docker Setup:
+
+Your system must include `docker`, `docker compose` and both must be running,
+
+Run:
 
 ```bash
 docker compose up -d
 ```
 
-3. Open your browser at `http://localhost:8080` to access the `app` frontend.
+> [!WARNING]
+> By default the application binds to port `8080` which you might have in use.
+> If this is the case, we strongly advise that you set up environment variables as
+> described in [Customizing your Docker Deployment](#customizing-your-docker-deployment).
+
+3. Open your browser at `http://localhost:8080/sms` to access the `app` frontend, the apidocs are available at `http://localhost:8080/apidocs`.
+
+![](./docs/imgs/sms-checker.gif)
 
 To stop the services:
 
@@ -20,9 +47,9 @@ To stop the services:
 docker compose down
 ```
 
-**Customizing image versions**
+### Customizing your Docker Deployment
 
-You can override image versions and ports using environment variables. Copy `.env.example` to `.env` and customize:
+By default, the `docker-compose` uses the container images tagged as `latest`. You can override image versions and ports using environment variables. Copy `.env.example` to `.env` and customize:
 
 ```bash
 cp .env.example .env
@@ -35,29 +62,17 @@ Or set them directly:
 MODEL_SERVICE_IMAGE=ghcr.io/doda25-team2/model-service:v1.0.0 docker compose up -d
 ```
 
-**Rebuilding / developing locally**
+### Advanced: Rebuilding and Developing Locally
 
-If you need to build the images locally (for development or after changes), build and tag the images and then restart the compose stack.
+If you need to build the images locally (for development or after changes), you should refer to the [app](https://github.com/doda25-team2/app) and [model-service](https://github.com/doda25-team2/model-service) repositories. 
 
-Example (build locally and run):
+> [!CAUTION]
+> Docker will very likely keep using **old** images even afeter new `app` or `model-service` images are published by the team.
+> You'll want to check the tags manually, or take the more destructive route and clear out images if you're out of date.
 
-```bash
-# build app image
-cd app
-docker build -t ghcr.io/doda25-team2/app:latest .
+# Deployment with Kubernetes
 
-# build model-service image
-cd ../model-service
-docker build -t ghcr.io/doda25-team2/model-service:latest .
-
-# go back to repo root and start compose 
-cd ../operation
-docker compose up -d --build
-```
-
-## Deployment with Kubernetes
-
-This application is deployed using a single Helm chart located in the `operation/` folder.  
+This application may be deployed using a single Helm chart located in the `operation/` folder.  
 It installs all microservices (app, model) along with their Services and Ingress routing.
 
 ### Prerequisites
@@ -178,3 +193,6 @@ This sends 60 requests over 60 seconds (60 req/min), which exceeds the 10 req/mi
 The alert will automatically resolve when traffic drops below the threshold.
 
 **Note:** The webhook endpoint `http://localhost:5001/webhook` is configured but not required to be running. Alerts will still appear in the AlertManager UI. Later we can implement a simple receiver service on port 5001, if we want to receive webhook notifications!
+
+# Provisioning with Vagrant and Ansible
+
