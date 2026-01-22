@@ -53,7 +53,7 @@ spec:
               protocol: TCP
           env:
             - name: MODEL_HOST
-              value: "http://model-service:8081"
+              value: "http://{{ .Values.services.model.name }}:{{ .Values.services.model.port | default 8081 }}"
             - name: MODEL_SERVICE_PORT
               value : "8081"
             - name: CONFIG_TEST
