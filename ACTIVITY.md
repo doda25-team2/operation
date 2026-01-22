@@ -33,7 +33,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Justin [#27](https://github.com/doda25-team2/operation/pull/27), [#32](https://github.com/doda25-team2/operation/pull/32/files)  , [#37](https://github.com/doda25-team2/operation/pull/37) → resolve merge conflicts and get step 11 and 12 ready for merge, refactor and streamline the `Vagrantfile` a few times - dropping the use of `ansible_local` in favor of host driven `ansible`.
 
 - Preethika [operation#26](https://github.com/doda25-team2/operation/pull/26) -> Implemented fixes for step 8 in the assignment,
-[operation#21](https://github.com/doda25-team2/operation/pull/21) -> Added changes for step 5, Worked on PR [operation#27](https://github.com/doda25-team2/operation/pull/27) -> worked on steps 13 to 18 for assignment 2.
+[operation#21](https://github.com/doda25-team2/operation/pull/21) -> Added changes for step 5, Worked on PR [operation#27](https://github.com/doda25-team2/operation/pull/27) -> worked on steps 13 to 18 for assignment 2. Implemented fixes for step 8 in the assignment (operation #21), and added the required changes for step 5 to ensure correctness and alignment with the specification. Worked on PR operation #27, completing steps 13–18 for Assignment 2, including configuration refinements and deployment-level updates. Additionally, validated the changes through local and cluster-level testing to confirm correct service startup and interaction.
 
 ### Week 4 (Dec 1st - Dec 7th)
 
@@ -58,7 +58,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Nick [operation#71](https://github.com/doda25-team2/operation/pull/71), [operation#72](https://github.com/doda25-team2/operation/pull/72), [operation#73](https://github.com/doda25-team2/operation/pull/73) → Fixed deadlock when installing deployment Helm chart, removed overwritten DestinationRule, implemented A4 "Traffic Management" to route 90% of users to stable app deployment and 10% to canary deployment using Sticky Sessions.
 
 - Justin [operation#66](https://github.com/doda25-team2/operation/pull/67) → Add and test `istio` installation to the `finalization.yml` playbook.
-- Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added deployment instructions and initial routing information to deployment.md.
+- Preethika [operation#69](https://github.com/doda25-team2/operation/pull/69) - Added clear deployment instructions and initial routing information to deployment.md, describing how the services are deployed and accessed within the cluster. Included details on service exposure, routing flow, and relevant configuration assumptions to support reproducibility.
 
 ### Week 6 (Dec 15th - Dec 21nd)
 
