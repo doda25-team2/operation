@@ -192,6 +192,7 @@ tolerations: []
 affinity: {}
 
 istio:
+  enabled: true
   host: "sms-checker.local"
   # Ingress gateway configuration - the name/label used by your cluster's ingress gateway
   # Default is 'ingressgateway' which matches istio=ingressgateway selector
