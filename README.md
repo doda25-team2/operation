@@ -39,6 +39,8 @@ docker compose up -d
 
 3. Open your browser at `http://localhost:8080/sms` to access the `app` frontend, the apidocs are available at `http://localhost:8080/apidocs`.
 
+![](./docs/imgs/sms-checker.gif)
+
 To stop the services:
 
 ```bash
