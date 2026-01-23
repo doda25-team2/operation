@@ -5,9 +5,12 @@ This is the operations repository of the `Spamchecker` application which is an o
 The application has two major deployment routes:
 
 1. `Docker` → [see here](#docker-deployments)
-2. `Kubernetes` → [see here]()
+2. `Kubernetes` → [see here](#kubernetes-deployments)
 
 We also provide Vagrant and Ansible infrastructure configurations for deployments using virutal machines. 
+
+> [!IMPORTANT]
+> These instructions are written for POSIX systems and you may have to look up some equivalents for Windows machines.
 
 ### Global System Requirements
 
@@ -70,22 +73,41 @@ If you need to build the images locally (for development or after changes), you 
 > Docker will very likely keep using **old** images even afeter new `app` or `model-service` images are published by the team.
 > You'll want to check the tags manually, or take the more destructive route and clear out images if you're out of date.
 
-# Deployment with Kubernetes
+# Kubernetes Deployments
 
-This application may be deployed using a single Helm chart located in the `operation/` folder.  
-It installs all microservices (app, model) along with their Services and Ingress routing.
+This application may be deployed using a single Helm chart located in the `operation/` folder.  It installs all microservices (app, model) along with their Services and Ingress routing.
 
-### Prerequisites
+### System Requirements
+
+- `Docker`,
 - A running Kubernetes cluster (Docker Desktop, Minikube, Kind, etc.)
-- NGINX Ingress Controller installed
-    - ```bash
-        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        helm install ingress-nginx ingress-nginx/ingress-nginx
-- Add `127.0.0.1 sms-checker.local` to /etc/hosts.
-- To bring up the services run:
-    ```helm upgrade --install operation ./deployment/```
-- To view logs:
-    ```kubectl logs <pod-name> -f```
+
+## Quick Kubernetes Setup
+
+1. Add the application FQD to to /etc/hosts; you will likely need `sudo`:
+```bash
+127.0.0.1       sms-checker.local
+```
+2. Install and enable the `nginx` ingress controller if not already available:
+```
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
+> [!WARNING]
+> Install and activate (e.g., `minikube addons enable ingress`) the ingress controller.
+3. Similarly, install the `istio` service mesh:
+```bash
+helm repo add istio https://istio-release.storage.googleapis.com/charts
+helm repo update
+helm install istio-base istio/base -n istio-system --create-namespace
+helm install istiod istio/istiod -n istio-system --wait
+```
+5. To bring up the services run:
+```bash
+helm upgrade --install operation ./deployment/
+```
+5. To view logs:
+```kubectl logs <pod-name> -f```
 
 ### Access the application
 - App UI: http://sms-checker.local/
