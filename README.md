@@ -1,13 +1,12 @@
 # Operations and Deployment Routes
 
-This is the operations repository of the `Spamchecker` application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to Team 2 of the TUD DoDa Team.
+This is the operations repository of the `spamchecker` toy application which is an orchestration of the [`model-service`](https://github.com/doda25-team2/model-service) and [`app`](https://github.com/doda25-team2/app) repository belonging to Team 2 of the TUD DoDa Team 2026.
 
-The application has two major deployment routes:
+The application has three deployment routes:
 
-1. `Docker` → [see here](#docker-deployments)
-2. `Kubernetes` → [see here](#kubernetes-deployments)
-
-We also provide Vagrant and Ansible infrastructure configurations for deployments using virutal machines. 
+1. Local Docker Deployment → [see here](#deployment-route-1-local-docker)
+2. VM Based Kubernetes Deployment → [see here](#deployment-route-2-kubernetes-on-vm-nodes)
+3. Local Kubernetes Deployment → [see here](#deployment-route-3-local-kubernetes)
 
 > [!IMPORTANT]
 > These instructions are written for POSIX systems and you may have to look up some equivalents for Windows machines.
@@ -21,11 +20,13 @@ git clone git@github.com:doda25-team2/operation.git sms-checker-operations
 cd sms-checker-operations
 ```
 
-# Docker Deployments
+You do not need to clone any of the other repositories as container images will be pulled automatically by any of the deployment routes below.
+
+# Deployment Route 1: Local Docker
 
 Below are the details for deploying using `Docker`
 
-### Quick Docker Setup:
+### Quick Setup:
 
 Your system must include `docker`, `docker compose` and both must be running,
 
@@ -73,7 +74,49 @@ If you need to build the images locally (for development or after changes), you 
 > Docker will very likely keep using **old** images even afeter new `app` or `model-service` images are published by the team.
 > You'll want to check the tags manually, or take the more destructive route and clear out images if you're out of date.
 
-# Kubernetes Deployments
+# Deployment Route 2: Kubernetes on VM Nodes 
+
+The repository offers `vagrant` and `ansible` scripts and playbooks which implements the `kubernetes` deployment above.
+
+### System Requirements:
+
+- a virtual machine provisioner (e.g., Virtualbox)
+- `vagrant`
+- `ansible`
+
+### Quick Setup:
+
+1. From operations root, run.
+```bash
+vagrant up
+```
+> [!NOTE]
+> Make yourself a coffee or something, because it will take a few minutes to install everything!
+
+
+2. From the host machine, run the system finalization playbook:
+```bash
+ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yaml
+```
+
+>[!WARNING]
+>We are aware of a bug (see #108) associated with VM network readiness if the playbook is run too fast.
+>Suggest waiting a minute or two before running the playbook.
+
+3. On the host machine, add this DNS entry in /etc/hosts (will need sudo):
+```
+192.168.56.95  sms-checker.local
+```
+
+4. From the host machine, deploy the chart:
+```bash
+vagrant ssh ctrl --command "helm upgrade --install operation /vagrant/deployment"
+```
+
+The application's UI and metrics endpoint is available at:
+[http://sms-checker.local/sms](sms-checker.local/sms)
+
+# Deployment Route 3: Local Kubernetes
 
 This application may be deployed using a single Helm chart located in the `operation/` folder.  It installs all microservices (app, model) along with their Services and Ingress routing.
 
@@ -82,7 +125,7 @@ This application may be deployed using a single Helm chart located in the `opera
 - `Docker`,
 - A running Kubernetes cluster (Docker Desktop, Minikube, Kind, etc.)
 
-## Quick Kubernetes Setup
+## Quick Setup
 
 1. Add the application FQD to to /etc/hosts; you will likely need `sudo`:
 ```bash
@@ -110,8 +153,8 @@ helm upgrade --install operation ./deployment/
 ```kubectl logs <pod-name> -f```
 
 ### Access the application
-- App UI: http://sms-checker.local/
-- Model API: http://sms-checker.local/predict
+
+- APP UI: http://sms-checker.local/sms
 - App Metrics: http://sms-checker.local/metrics
 
 ### Access the Kubernetes Dashboard
@@ -216,5 +259,5 @@ The alert will automatically resolve when traffic drops below the threshold.
 
 **Note:** The webhook endpoint `http://localhost:5001/webhook` is configured but not required to be running. Alerts will still appear in the AlertManager UI. Later we can implement a simple receiver service on port 5001, if we want to receive webhook notifications!
 
-# Provisioning with Vagrant and Ansible
+
 
