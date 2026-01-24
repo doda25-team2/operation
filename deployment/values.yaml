@@ -77,7 +77,7 @@ ingress:
   hosts:
     - host: sms-checker.local
       paths:
-        - path: /predict
+        - path: /sms
           service: model-service
           port: 8081
         - path: /
