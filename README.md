@@ -113,8 +113,13 @@ ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yaml
 vagrant ssh ctrl --command "helm upgrade --install operation /vagrant/deployment"
 ```
 
-The application's UI and metrics endpoint is available at:
-[http://sms-checker.local/sms](sms-checker.local/sms)
+It may take a few minutes for the system to startup within the cluster, but the application should then be available at:
+```
+  http://sms-checker.local/
+  http://sms-checker.local/sms
+  http://sms-checker.local/apidocs
+  http://sms-checker.local/metrics
+```
 
 # Deployment Route 3: Local Kubernetes
 
