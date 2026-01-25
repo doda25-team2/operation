@@ -108,6 +108,7 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Miguel [operation#97](https://github.com/doda25-team2/operation/pull/97) → Added some documentation on the countinous expermination with a general draft outlining an A/B testing experiment, including hypothesis, metrics, and decision process, Also extensive work was done on the presentation this week.
 
+- Nick [operation#109](https://github.com/doda25-team2/operation/pull/109), [operation#112](https://github.com/doda25-team2/operation/pull/112) → Added Istio to Minikube deployment documentation and documented deploying the application using an existing Kubernetes cluster. Also added a new deployment for the canary version of the model-service and fixed the VirtualService to route all traffic to the canary app deployment to the canary model-service. Also worked on the presentation.
 
 ### Week 10 (Jan 26th, 27th)
 
