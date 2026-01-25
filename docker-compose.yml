@@ -3,6 +3,10 @@ services:
     image: ${MODEL_SERVICE_IMAGE:-ghcr.io/doda25-team2/model-service:latest}
     environment:
       - MODEL_SERVICE_PORT=${MODEL_SERVICE_PORT:-8081}
+      - MODEL_PATH=/models/model.joblib
+      - PREPROCESSOR_PATH=/models/preprocessor.joblib
+      - DEFAULT_MODEL_URL=https://github.com/doda25-team2/model-service/releases/latest/download/model.joblib
+      - DEFAULT_PREPROCESSOR_URL=https://github.com/doda25-team2/model-service/releases/latest/download/preprocessor.joblib
     volumes:
       - model-data:/models
     restart: unless-stopped
