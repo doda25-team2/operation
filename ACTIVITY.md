@@ -98,13 +98,15 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 - Nick [operation#96](https://github.com/doda25-team2/operation/pull/96) → Added documentation for deployment of the Kubernetes cluster using Vagrant and Ansible with clear step-by-step instructions and troubleshooting tips. Also documented how to run the application Helm chart with Minikube for local development and testing.
 
-- Miguel [operation#97](https://github.com/doda25-team2/operation/pull/97) → Added some documentation on the countinous expermination with a general draft outlining an A/B testing experiment, including hypothesis, metrics, and decision process.
+
 
 ### Week 9 (Jan 19th - Jan 25th)
 
 - Justin [operation#100](https://github.com/doda25-team2/operation/pull/100), [operation#101](https://github.com/doda25-team2/operation/pull/101), [model-service#12](https://github.com/doda25-team2/model-service/pull/12) → #100 and #101 are related PRs which introduce a smoke-test workflow to the operations repository which is called whenever a PR is requested. While not a full integration test, this workflow does mimic the helm deployment aspects and shows that: at least, we can get to the splash page of the application. #12 may appear trivial, but it was a needed step during testing: the smoke-test was calling the latest tag, but this was broken (probably after I dumped old container artefacts which, for some reason, `latest` was still pointing too.)
 - Ayush [operation#99](https://github.com/doda25-team2/operation/pull/98) -> A github workflow was created which is for the midweek CI checkpoint as part of the extension proposal in which this ensures that it runs at the end of every Wednesday, it checks if all team members opened a PR and if any is missing creates an issue. Furthermore, extensive work was done in order to finish the presentation due next week.
 - Preethika [operation#106](https://github.com/doda25-team2/operation/pull/106) Worked on bug fixes to fix helm charts and make further enhancements to the deployments, [operation#111](https://github.com/doda25-team2/operation/pull/111) Worked on a bug in F10 of assignment where model was not being mounted. Implemented the changes in the docker compose file after localising the issue.
+
+- Miguel [operation#97](https://github.com/doda25-team2/operation/pull/97) → Added some documentation on the countinous expermination with a general draft outlining an A/B testing experiment, including hypothesis, metrics, and decision process, Also extensive work was done on the presentation this week.
 
 
 ### Week 10 (Jan 26th, 27th)
