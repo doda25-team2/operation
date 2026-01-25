@@ -432,7 +432,7 @@ Key routing decisions are made at three points:
 2. **App VirtualService**: Evaluates `x-user-id` header to route to canary (~10%) or stable (~90%) subset
 3. **Model VirtualService**: Routes 100% to primary (user-visible) and mirrors 100% to shadow (evaluation only)
 
-The canary routing split (90/10) is determined by the regex pattern `.*0$` matching user IDs ending in "0", which represents approximately 10% of users when IDs are uniformly distributed.
+The canary routing split (90/10) is determined by the regex pattern `.*0$` matching user IDs ending in "0", which represents approximately 10% of users when IDs are uniformly distributed. This regex is configurable with the [Helm chart value `istio.canary.headerRoutingRegex`](../deployment/values.yaml).
 
 ---
 

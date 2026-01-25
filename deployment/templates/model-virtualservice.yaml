@@ -1,0 +1,35 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "deployment.fullname" . }}-model-vs
+spec:
+  hosts:
+    - {{ .Values.services.model.name }}
+  http:
+    {{- if .Values.istio.canary.enabled }}
+    # Route requests from canary app to canary model
+    - match:
+        - sourceLabels:
+            version: canary
+      route:
+        - destination:
+            host: {{ .Values.services.model.name }}
+            port:
+              number: {{ .Values.services.model.port }}
+            subset: canary
+    # All other requests go to primary model
+    - route:
+        - destination:
+            host: {{ .Values.services.model.name }}
+            port:
+              number: {{ .Values.services.model.port }}
+            subset: primary
+    {{- else }}
+    - route:
+        - destination:
+            host: {{ .Values.services.model.name }}
+            port:
+              number: {{ .Values.services.model.port }}
+    {{- end }}
+{{- end }}

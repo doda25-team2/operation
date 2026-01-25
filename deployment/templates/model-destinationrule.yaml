@@ -13,4 +13,9 @@ spec:
     - name: shadow
       labels:
         version: shadow
+    {{- if .Values.istio.canary.enabled }}
+    - name: canary
+      labels:
+        version: canary
+    {{- end }}
 {{- end }}
