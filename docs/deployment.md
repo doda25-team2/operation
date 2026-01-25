@@ -69,42 +69,79 @@ To facilitate local development and testing, you can deploy the application on a
 
 1. Start Minikube with the Calico CNI plugin and enable the necessary addons:
 
-```bash
-minikube start --driver=docker --cni=calico
-minikube addons enable ingress
-minikube addons enable ingress-dns
-```
+   ```bash
+   minikube start --driver=docker --cni=calico
+   minikube addons enable ingress
+   ```
 
-2. Deploy the application Helm chart:
+2. Download `istioctl` from the [Istio releases page](https://github.com/istio/istio/releases) and install Istio in your Minikube cluster:
 
-```bash
-helm install deployment ./deployment
-```
+   ```bash
+   istioctl install -y
+   ```
 
-3. To access the application from outside the Minikube cluster, configure the Ingress NGINX controller service as a LoadBalancer instead of NodePort, and run `minikube tunnel` in a separate terminal to allocate an external IP:
+   > [!NOTE]
+   > It is possible to skip this step if you don't want to test any Istio-specific features,    but you'll have to run the following command to configure the Ingress NGINX controller    service as a LoadBalancer instead of NodePort:
+   > ```bash
+   > kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type":    "LoadBalancer"}}'
+   > ```
 
-```bash
-kubectl patch svc ingress-nginx-controller -n ingress-nginx -p '{"spec": {"type": "LoadBalancer"}}'
-minikube tunnel
-```
+3. Deploy the application Helm chart:
+
+   ```bash
+   helm install deployment ./deployment
+   ```
 
 4. Add the following entry to your `/etc/hosts` file to map the application hostname to the loopback address:
 
-```
-127.0.0.1 sms-checker.local
-127.0.0.1 grafana.local
-```
+   ```
+   127.0.0.1 sms-checker.local
+   127.0.0.1 grafana.local
+   ```
 
 5. Wait for the pods to be in the `Running` state:
 
-```bash
-kubectl get pods
-```
+   ```bash
+   kubectl get pods
+   ```
 
-6. Access the application at http://sms-checker.local.
+6. To access the application, run the following command to create a tunnel for the LoadBalancer service:
 
-> [!CAUTION]
-> TODO: Add Istio installation steps for Minikube deployment
+   ```bash
+   minikube tunnel
+   ```
+
+7. Access the application at http://sms-checker.local.
+
+
+## Deploying the application on an existing Kubernetes cluster
+
+To deploy the application on an existing Kubernetes cluster, ensure that you have [Helm](https://helm.sh/docs/intro/install/) and [kubectl](https://kubernetes.io/docs/tasks/tools/) installed and configured to access your cluster.
+
+The cluster must have Istio installed and an Istio IngressGateway configured. See [istio-operator.yaml](./../k8s/istio-operator.yaml) for an example Istio installation manifest.
+
+1. Deploy the application Helm chart:
+
+   ```bash
+   helm install deployment ./deployment
+   ```
+
+2. Add the following entry to your DNS or `/etc/hosts` file to map the application hostname to the appropriate IP address of your Istio IngressGateway:
+
+   ```
+   <INGRESS_GATEWAY_IP> sms-checker.local
+   <INGRESS_GATEWAY_IP> grafana.local
+   ```
+
+   Replace `<INGRESS_GATEWAY_IP>` with the actual IP address of your Istio IngressGateway.
+
+3. Wait for the pods to be in the `Running` state:
+
+   ```bash
+   kubectl get pods
+   ```
+
+4. Access the application at http://sms-checker.local.
 
 ## Deployed Components
 
