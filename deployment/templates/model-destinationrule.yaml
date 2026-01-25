@@ -5,7 +5,7 @@ metadata:
   name: model-operation-devops-app-dr
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Values.services.model.name }}.{{ .Release.Namespace }}.svc.cluster.local
+  host: {{ .Values.services.model.name }}
   subsets:
     - name: primary
       labels:
