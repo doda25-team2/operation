@@ -18,15 +18,17 @@ Below is a figure which illustartes the current contribution workflow and how mi
 
 ```mermaid
 %%{init: {'theme': 'default', 'themeVariables': {
-  'lineColor': '#ffffff'
+  'lineColor': '#000000'
 }}}%%
 flowchart TD
-    A[Developer starts task]:::dev --> B[Task completed by Developer]:::dev
-    B --> C[PR opened]:::pr
-    C --> D[PR is left open as no contributor reviews it]:::problem
-    D --> E[Late integration]:::problem
-    E --> F[Another developer works on similar features]:::risk
-    F --> G[Merge conflicts occur]:::problem
+    A[Developer starts task] --> B[Task completed by Developer]
+    B --> C[PR opened]
+    C --> D[PR is left open]
+    D --> E[No notification so no reviewer checks it]
+    E --> F[Late integration]
+    F --> G[Another developer works on similar features]
+    G --> H[Merge conflicts occur]
+
 
     classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
     classDef pr fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
@@ -57,18 +59,18 @@ Below is figure 2, which demonstrates how the proposed extension will impact the
 ```mermaid
 
 %%{init: {'theme': 'default', 'themeVariables': {
-  'lineColor': '#ffffff',
+  'lineColor': '#000000',
   'nodeTextColor': '#000000'
 }}}%%
 flowchart TD
-    A[Developer starts task]:::dev --> B[Some implementation by midweek]:::dev
-    B --> C[PR opened before midweek checkpoint]:::pr
-    C --> D[CI pipeline runs automatically]:::ci
-    D --> E[Automatically assigned reviewers]:::review
-    E --> F[Reviewer provides feedback]:::review
-    F --> G[Changes applied]:::dev
-    G --> H[PR merged early]:::success
-    H --> I[Continuous integration maintained]:::success
+    A[Developer starts task] --> B[Some implementation]
+    B --> C[PR opened before midweek checkpoint]
+    C --> D[Automatically assigned reviewers]
+    D --> E[Reviewer merges and provides feedback]
+    E --> F[Changes applied]
+    F --> G[PR merged early]
+    G --> H[Continuous integration maintained]
+    H --> I[No issues created after midweek]
 
     classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
     classDef pr fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
@@ -118,8 +120,6 @@ With the merge conflicts, for both week there were none because most merge confl
 With the time it took to merge after a PR is opened, in order to evaluate this, we made sure that we checked all the PRs made in that specific week that was merged and took the number of days it took to merge it. Based on that the average was taken for both weeks. For week 8, the average day it took to merge was 2.33 days whereas for week 9 the average day it took to merge was 1.1 days. Clearly there is a significant decrease in the time it took to merge since every contributor got a notification about the PR which let them know a PR was open. 
 
 Based on this we can come up with a conclusion for the hypothesis that this can indeed reduce the integration time. However, whether merge conflict was reduced could not be tested. 
-
-## Conclusion
 
 ## Sources
 
