@@ -111,7 +111,6 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 - Nick [operation#109](https://github.com/doda25-team2/operation/pull/109), [operation#112](https://github.com/doda25-team2/operation/pull/112) → Added Istio to Minikube deployment documentation and documented deploying the application using an existing Kubernetes cluster. Also added a new deployment for the canary version of the model-service and fixed the VirtualService to route all traffic to the canary app deployment to the canary model-service. Also worked on the presentation.
 
 ### Week 10 (Jan 26th, 27th)
-
-
+- George [operation#78](https://github.com/doda25-team2/operation/pull/78), [operation#115](https://github.com/doda25-team2/operation/pull/115), [operation#116](https://github.com/doda25-team2/operation/pull/116)  → Fixed the bug in `Vagrantfile` that did not let finalazation.yaml to properly auto execute after vagrant up. Added a new dashboard (`assignment4-support.json`) showcasing the results of the canary vs stable experimentation, and updated the `continuous-experimentation.md`. Finally, updated the `README.md` to be up to date and added information to make the setting up process easier.
 
 
