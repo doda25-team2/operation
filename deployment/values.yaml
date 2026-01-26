@@ -204,11 +204,14 @@ istio:
   canary:
     enabled: true
     replicaCount: 1
-    stableWeight: 90
-    canaryWeight: 10
+    # Regex to match x-user-id header for canary routing (e.g., ".*0$" routes ~10% of users)
+    headerRoutingRegex: ".*0$"
     image:
       repository: ghcr.io/doda25-team2/app
       tag: v1.3.1
+    modelImage:
+      repository: ghcr.io/doda25-team2/model-service
+      tag: latest
 
 # Prometheus 
 prometheus:

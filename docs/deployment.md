@@ -158,11 +158,13 @@ The complete deployment architecture, including all Kubernetes and Istio resourc
 - Exposes Prometheus metrics at `/metrics` (scraped via ServiceMonitor).
 
 #### model-service
-- Two variants (as Istio subsets):
+- Three variants (as Istio subsets):
   - **primary**: user-visible model version (`version: primary`)
   - **shadow**: shadow model version (`version: shadow`)
+  - **canary**: experimental model version (`version: canary`)
 - Shadow variant is deployed as a separate Deployment (labeled `version: shadow`).
 - Shadow is not user-visible; it receives mirrored traffic for evaluation.
+- Canary model receives traffic only from canary app pods (via `sourceLabels` routing).
 
 ### Deployment Architecture
 
@@ -216,10 +218,11 @@ flowchart TB
     AppSvc --> AppCanary[app-canary-deployment<br/>version: canary<br/>~10% traffic]
     
     AppStable -->|Calls| ModelSvc[model-service<br/>Service ClusterIP]
-    AppCanary -->|Calls| ModelSvc
+    AppCanary -->|Calls via sourceLabels| ModelSvc
     
-    ModelSvc --> ModelPrimary[model-deployment<br/>version: primary<br/>100% user-visible]
-    ModelSvc --> ModelShadow[model-shadow-deployment<br/>version: shadow<br/>100% mirrored]
+    ModelSvc --> ModelPrimary[model-deployment<br/>version: primary<br/>stable app traffic]
+    ModelSvc --> ModelShadow[model-shadow-deployment<br/>version: shadow<br/>mirrored from primary]
+    ModelSvc --> ModelCanary[model-canary-deployment<br/>version: canary<br/>canary app traffic]
     
     style AppSvc fill:#fff4e1
     style ModelSvc fill:#fff4e1
@@ -227,6 +230,7 @@ flowchart TB
     style AppCanary fill:#fff9c4
     style ModelPrimary fill:#e8f5e9
     style ModelShadow fill:#f3e5f5
+    style ModelCanary fill:#fff9c4
 ```
 
 #### Observability Stack
@@ -303,15 +307,19 @@ These modular diagrams show:
   - `trafficPolicy.loadBalancer.consistentHash.httpHeaderName: x-user-id`  
   This stabilizes routing when the same user repeatedly sends the same `x-user-id`.
 
-### DestinationRule + VirtualService (model-service shadow launch)
+### DestinationRule + VirtualService (model-service canary + shadow launch)
 - DestinationRule defines model subsets:
   - `primary` → pods labeled `version: primary`
   - `shadow` → pods labeled `version: shadow`
+  - `canary` → pods labeled `version: canary`
 - VirtualService for model-service routes:
-  - **100%** of requests to subset **primary** (user-visible responses)
-  - **mirrors 100%** of the traffic to subset **shadow** (shadow evaluation)
+  - Requests from pods with `version: canary` label → subset **canary** (no mirroring)
+  - All other requests → subset **primary** (user-visible responses)
+  - **mirrors 100%** of primary traffic to subset **shadow** (shadow evaluation)
 
-This realizes a **shadow launch**: the shadow model processes the same inputs, but its outputs are not returned to users.
+This realizes both a **canary deployment** and a **shadow launch**:
+- Canary app pods always communicate with canary model pods (via `sourceLabels` routing)
+- Stable app traffic is routed to primary model with shadow mirroring for evaluation
 
 ---
 
@@ -368,10 +376,10 @@ The request flow follows these steps (see the [Request Data Flow](#request-data-
    - If it matches the canary rule → route to **app-service subset `canary`**
    - Otherwise → route to **app-service subset `stable`**
 5. The selected app-service instance calls the model via `http://model-service:8081`.
-6. The **Model VirtualService** routes the request:
-   - Response path → **model-service subset `primary`**
-   - Shadow evaluation → **mirrors** the same request to **subset `shadow`**
-7. The user receives the response from **primary**; shadow is evaluated asynchronously (no user-visible impact).
+6. The **Model VirtualService** routes the request based on `sourceLabels`:
+   - If the request originates from a canary app pod (`version: canary`) → route to **model-service subset `canary`** (no mirroring)
+   - Otherwise → route to **model-service subset `primary`** + **mirror** to **subset `shadow`**
+7. The user receives the response from **primary** or **canary** depending on routing; shadow is evaluated asynchronously (no user-visible impact).
 8. Prometheus scrapes app-service metrics via `/metrics`; Grafana visualizes them; PrometheusRule can trigger alerts.
 
 ### Request Data Flow
@@ -389,6 +397,7 @@ sequenceDiagram
     participant AppCanary as app-service<br/>canary subset
     participant ModelVS as Model VirtualService
     participant ModelPrimary as model-service<br/>primary subset
+    participant ModelCanary as model-service<br/>canary subset
     participant ModelShadow as model-service<br/>shadow subset
     participant Prometheus
 
@@ -402,25 +411,24 @@ sequenceDiagram
         AppVS->>AppDR: Route to canary subset
         AppDR->>AppCanary: Consistent hash on x-user-id
         AppCanary->>ModelVS: Call model-service:8081
+        Note over ModelVS: Routing Decision Point 3a<br/>sourceLabels: version=canary
+        ModelVS->>ModelCanary: Route to canary model
+        ModelCanary-->>AppCanary: Response
     else x-user-id does not end in "0" (~90%)
         AppVS->>AppDR: Route to stable subset
         AppDR->>AppStable: Consistent hash on x-user-id
         AppStable->>ModelVS: Call model-service:8081
+        Note over ModelVS: Routing Decision Point 3b<br/>sourceLabels: version=stable
+        ModelVS->>ModelPrimary: Route to primary (user-visible)
+        ModelVS-->>ModelShadow: Mirror 100% (evaluation only)
+        ModelPrimary-->>AppStable: Response
     end
-
-    Note over ModelVS: Routing Decision Point 3<br/>Shadow Mirroring
-    ModelVS->>ModelPrimary: Route 100% (user-visible)
-    ModelVS-->>ModelShadow: Mirror 100% (evaluation only)
     
-    ModelPrimary->>ModelPrimary: Process request
     ModelShadow->>ModelShadow: Process request (async)
+    Note over ModelShadow: Shadow response discarded<br/>(not returned to user)
     
-    ModelPrimary-->>AppStable: Response (if from stable)
-    ModelPrimary-->>AppCanary: Response (if from canary)
     AppStable-->>Client: Final response
     AppCanary-->>Client: Final response
-    
-    Note over ModelShadow: Shadow response discarded<br/>(not returned to user)
     
     Note over Prometheus: Observability (continuous)
     Prometheus->>AppStable: Scrape /metrics
@@ -430,9 +438,11 @@ sequenceDiagram
 Key routing decisions are made at three points:
 1. **IngressGateway (Envoy)**: Validates and admits requests based on Gateway configuration
 2. **App VirtualService**: Evaluates `x-user-id` header to route to canary (~10%) or stable (~90%) subset
-3. **Model VirtualService**: Routes 100% to primary (user-visible) and mirrors 100% to shadow (evaluation only)
+3. **Model VirtualService**: Uses `sourceLabels` to route based on the calling pod's version label:
+   - Requests from canary app pods → model canary subset (no mirroring)
+   - Requests from stable app pods → model primary subset + mirror to shadow
 
-The canary routing split (90/10) is determined by the regex pattern `.*0$` matching user IDs ending in "0", which represents approximately 10% of users when IDs are uniformly distributed.
+The canary routing split (90/10) is determined by the regex pattern `.*0$` matching user IDs ending in "0", which represents approximately 10% of users when IDs are uniformly distributed. This regex is configurable with the [Helm chart value `istio.canary.headerRoutingRegex`](../deployment/values.yaml).
 
 ---
 
@@ -497,8 +507,9 @@ This diagram shows:
 ## Additional Istio Use Case: Shadow Launch (Model)
 
 The deployment implements a **shadow launch** for the model-service:
-- All user-visible model responses are served by **subset `primary`**.
-- Identical traffic is mirrored to **subset `shadow`** using Istio’s `mirror` feature.
+- User-visible model responses from **stable app pods** are served by **subset `primary`**.
+- Identical traffic is mirrored to **subset `shadow`** using Istio's `mirror` feature.
+- Requests from **canary app pods** are routed to **subset `canary`** without shadow mirroring.
 - This makes it possible to evaluate a newer model version under real traffic without impacting users.
 
 The [Shadow Launch Architecture](#shadow-launch-architecture) diagram below illustrates how traffic is mirrored and processed.
@@ -510,35 +521,46 @@ The following diagram illustrates the shadow launch pattern for model-service tr
 ```mermaid
 flowchart LR
     subgraph appService["app-service"]
-        AppPod[App Pod<br/>Calls model-service:8081]
+        AppStable[App Pod<br/>version: stable]
+        AppCanary[App Pod<br/>version: canary]
     end
 
     subgraph istioRouting["Istio Routing"]
-        ModelVS[Model VirtualService<br/>Receives Request]
+        ModelVS[Model VirtualService<br/>sourceLabels Routing]
         ModelDR[Model DestinationRule<br/>Defines Subsets]
     end
 
-    subgraph primaryPath["Primary Path<br/>(User-Visible)"]
-        ModelPrimary[model-service<br/>version: primary<br/>100% Traffic]
+    subgraph primaryPath["Primary Path<br/>(Stable App Traffic)"]
+        ModelPrimary[model-service<br/>version: primary]
         PrimaryResponse[Primary Response<br/>Returned to User]
     end
 
+    subgraph canaryPath["Canary Path<br/>(Canary App Traffic)"]
+        ModelCanary[model-service<br/>version: canary]
+        CanaryResponse[Canary Response<br/>Returned to User]
+    end
+
     subgraph shadowPath["Shadow Path<br/>(Evaluation Only)"]
-        ModelShadow[model-service<br/>version: shadow<br/>100% Mirrored]
+        ModelShadow[model-service<br/>version: shadow<br/>Mirrored from Primary]
         ShadowResponse[Shadow Response<br/>Discarded]
     end
 
-    AppPod -->|HTTP Request| ModelVS
-    ModelVS -->|Route 100%| ModelDR
+    AppStable -->|HTTP Request| ModelVS
+    AppCanary -->|HTTP Request| ModelVS
+    
+    ModelVS -->|sourceLabels: stable| ModelDR
     ModelDR -->|Subset: primary| ModelPrimary
     ModelVS -.->|Mirror 100%| ModelDR
     ModelDR -.->|Subset: shadow| ModelShadow
     
-    ModelPrimary -->|Process Request| ModelPrimary
-    ModelShadow -->|Process Request<br/>Async| ModelShadow
+    ModelVS -->|sourceLabels: canary| ModelDR
+    ModelDR -->|Subset: canary| ModelCanary
     
     ModelPrimary -->|Response| PrimaryResponse
-    PrimaryResponse -->|Return to User| AppPod
+    PrimaryResponse -->|Return to User| AppStable
+    
+    ModelCanary -->|Response| CanaryResponse
+    CanaryResponse -->|Return to User| AppCanary
     
     ModelShadow -->|Response| ShadowResponse
     ShadowResponse -.->|Discarded<br/>Not Returned| Discard[No User Impact]
@@ -546,17 +568,22 @@ flowchart LR
     style ModelVS fill:#e1f5ff
     style ModelDR fill:#e1f5ff
     style ModelPrimary fill:#e8f5e9
+    style ModelCanary fill:#fff9c4
     style ModelShadow fill:#f3e5f5
     style PrimaryResponse fill:#c8e6c9
+    style CanaryResponse fill:#fff9c4
     style ShadowResponse fill:#e1bee7
     style Discard fill:#ffcdd2
+    style AppStable fill:#e8f5e9
+    style AppCanary fill:#fff9c4
 ```
 
 This diagram demonstrates:
-- **100% Traffic to Primary**: All requests are routed to the primary subset, which generates user-visible responses
-- **100% Mirroring to Shadow**: The same requests are mirrored (copied) to the shadow subset for evaluation
+- **sourceLabels Routing**: The Model VirtualService uses `sourceLabels` to determine routing based on which app pod version made the request
+- **Canary App → Canary Model**: Requests from canary app pods are routed directly to the canary model subset (no mirroring)
+- **Stable App → Primary Model + Shadow**: Requests from stable app pods are routed to the primary model with 100% mirroring to shadow
 - **Asynchronous Processing**: The shadow processes requests asynchronously; its responses are discarded and never returned to users
-- **Zero User Impact**: Users only see responses from the primary model, while the shadow model is evaluated under real traffic conditions
-- **Evaluation Benefits**: This pattern allows testing new model versions with production traffic patterns without risking user experience
+- **Zero User Impact**: Users only see responses from the primary or canary model, while the shadow model is evaluated under real traffic conditions
+- **End-to-End Canary**: This pattern ensures that canary users experience both canary app AND canary model versions together
 
-The mirroring is configured in the Model VirtualService with `mirrorPercentage: 100`, ensuring every request to the primary is also sent to the shadow for evaluation.
+The mirroring is configured in the Model VirtualService with `mirrorPercentage: 100`, ensuring every request to the primary (from stable app) is also sent to the shadow for evaluation.
