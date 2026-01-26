@@ -48,6 +48,14 @@ You can now run `vagrant up` as normal from the WSL2 terminal.
 When the cluster is provisioned, the `finalization.yaml` manifest is already automatically applied. If you need to apply it manually (e.g., after making changes), run:
 
 ```bash
+ansible-playbook -u vagrant -i inventory.cfg ./ansible/finalization.yaml
+```
+
+The `inventory.cfg` file is automatically generated during `vagrant up` and contains the IP addresses of all cluster nodes (control plane and worker nodes), organized into appropriate Ansible groups. This makes it easier to manage the cluster infrastructure without hardcoding IP addresses.
+
+Alternatively, you can specify the control plane IP directly:
+
+```bash
 ansible-playbook -u vagrant -i 192.168.56.100, ./ansible/finalization.yaml
 ```
 
