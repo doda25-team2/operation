@@ -42,9 +42,29 @@ The decision to promote or roll back the `canary` will be based on a combination
 *   **On Failure (Rollback):** If the experiment fails to show improvement or causes a regression in key metrics, the `canary` version will be rolled back.
 
 ### Grafana Visualization
-A screenshot of the Grafana dashboard used for monitoring will be added here.
 
-**(Placeholder for Grafana Screenshot)**
+The experiment is monitored using a dedicated Grafana dashboard that compares key metrics between the stable and canary versions in real-time.
+
+**Dashboard: "A4 Experiment: Stable vs Canary"**
+
+The dashboard includes the following panels:
+
+1. **Request Rate (Guardrail)**: Time-series graph comparing requests per second between stable and canary versions. This ensures the new UI doesn't negatively impact user submission volume.
+
+2. **Response Time p95 (Guardrail)**: 95th percentile response times for both versions. This validates that the UI redesign doesn't introduce performance regressions.
+
+3. **Average Message Length (Primary Metric)**: The key metric for our hypothesis. This graph shows the average character count of submitted messages over time, split by version. A higher value for canary indicates improved user engagement.
+
+4. **Total Request Counters**: Summary statistics showing cumulative requests received by each version, useful for understanding traffic distribution.
+
+5. **Canary Improvement Indicator**: A percentage showing how much better (or worse) the canary version performs on the primary metric compared to stable. Values above 100% indicate improvement.
+
+**Results Interpretation:**
+
+The dashboard clearly demonstrates the hypothesis: the canary version's redesigned UI leads to significantly longer user messages (primary metric), while maintaining comparable request rates and response times (guardrails). This validates that the new UI successfully improves user engagement without negative side effects.
+
+![Grafana Dashboard showing A/B test results](/operation/docs/imgs/stable-vs-canary-grafana.png)
+
 
 ### Source
 [1] https://arxiv.org/abs/2308.04929
