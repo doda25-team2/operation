@@ -112,5 +112,5 @@ Created GitHub Actions workflows for automated container image releases to GHCR 
 
 ### Week 10 (Jan 26th, 27th)
 - George [operation#78](https://github.com/doda25-team2/operation/pull/78), [operation#115](https://github.com/doda25-team2/operation/pull/115), [operation#116](https://github.com/doda25-team2/operation/pull/116)  → Fixed the bug in `Vagrantfile` that did not let finalazation.yaml to properly auto execute after vagrant up. Added a new dashboard (`assignment4-support.json`) showcasing the results of the canary vs stable experimentation, and updated the `continuous-experimentation.md`. Finally, updated the `README.md` to be up to date and added information to make the setting up process easier.
-
-
+- Ayush [operation#117](https://github.com/doda25-team2/operation/pull/117) -> Extensively worked on the extension.md documentation in which most of it was rewritten for more clarity and further information was added for clarification and achieving all the criteria for the rubric. Within the extension.md, current state was expanded further and how the shortcoming was connected to the assignments. Two extra sources have been added to further aid in dealing with the shortcoming. Within the experiment design hypothesis was created and further information added. Visualizations were added to enhance the documents and aid in explanation.
+  
