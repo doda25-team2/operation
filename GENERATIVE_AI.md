@@ -14,4 +14,8 @@ Let's now add a github workflow that pushes to the maven package registry on Git
 First, it should extract the version from the release tag, then write the version into pom.xml, commit the version bump, build the jar, add it to the release artifacts, add a new tag with the version to the new commit and push it.
 ```
 
-I of course checked everything it generated and understand what I committed.
+## George
+
+My primary use was for understanding complex concepts and exploring how different components connect. I spent significant time understanding the different network layers in our application stack (Istio service mesh, Kubernetes networking, container networking), and AI was invaluable for grasping both the bigger picture and diving into specific details. I would ask clarifying questions and request explanations from different angles until the concepts fully clicked.
+
+For code generation, I used AI for boilerplate and formatting heavy tasks. For example, I used it to generate Java classes for Prometheus metrics (Counter, Gauge, and Histogram implementations) where the structure was straightforward but tedious to write. Similarly, I relied on AI for YAML generation, particularly because I found the strict indentation and formatting requirements error prone to write manually. However, I always determined what I wanted to implement and verified the correctness of the approach, AI simply saved me from formatting frustrations.
