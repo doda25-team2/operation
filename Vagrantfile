@@ -54,15 +54,6 @@ Vagrant.configure("2") do |config|
         ctrl_ip: CTRL_IP
       }
     end
-
-    node.vm.provision "ansible" do |ansible|
-      ansible.playbook = "./ansible/finalization.yaml"
-      ansible.extra_vars = {
-        ctrl_ip: CTRL_IP,
-        worker_count: WORKER_COUNT,
-        worker_ip_base: WORKER_IP_BASE
-      }
-    end
   end
 
   # Worker nodes
@@ -83,6 +74,20 @@ Vagrant.configure("2") do |config|
         ansible.extra_vars = {
           ctrl_hostname: "ctrl"
         }
+      end
+
+      # Run finalization only after the last worker node is provisioned
+      # Target the ctrl node from node-2 to ensure all nodes are up
+      if i == WORKER_COUNT
+        node.vm.provision "ansible" do |ansible|
+          ansible.playbook = "./ansible/finalization.yaml"
+          ansible.limit = "ctrl"
+          ansible.extra_vars = {
+            ctrl_ip: CTRL_IP,
+            worker_count: WORKER_COUNT,
+            worker_ip_base: WORKER_IP_BASE
+          }
+        end
       end
     end
   end
