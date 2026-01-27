@@ -354,6 +354,7 @@ This realizes both a **canary deployment** and a **shadow launch**:
 
 ### Hostnames
 - `sms-checker.local` – primary entry point (configured as `.Values.istio.host`)
+- A separate configurable hostname (e.g., `sms-checker-prerelease.local` via `.Values.istio.canary.host`) is available for pre-release (canary) deployments.
 
 ### Ports
 - HTTP **80**, exposed via the Istio IngressGateway
