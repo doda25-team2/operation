@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
@@ -23,3 +24,4 @@ spec:
       labels:
         version: canary
     {{- end }}
+{{- end }}

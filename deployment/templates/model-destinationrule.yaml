@@ -1,10 +1,11 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
   name: model-operation-devops-app-dr
   namespace: {{ .Release.Namespace }}
 spec:
-  host: {{ .Values.services.model.name }}.{{ .Release.Namespace }}.svc.cluster.local
+  host: {{ .Values.services.model.name }}
   subsets:
     - name: primary
       labels:
@@ -12,3 +13,9 @@ spec:
     - name: shadow
       labels:
         version: shadow
+    {{- if .Values.istio.canary.enabled }}
+    - name: canary
+      labels:
+        version: canary
+    {{- end }}
+{{- end }}

@@ -4,12 +4,13 @@ metadata:
   name: grafana-dashboards
   labels:
     app.kubernetes.io/name: grafana
+    grafana_dashboard: "1"
 data:
   custom-metrics.json: |
-{{- with .Files.Get "dashboards/custom-metrics.json" | indent 4 }}
+{{- with .Files.Get "grafana-dashboards/custom-metrics.json" | indent 4 }}
 {{ . }}
 {{- end }}
   assignment4-support.json: |
-{{- with .Files.Get "dashboards/assignment4-support.json" | indent 4 }}
+{{- with .Files.Get "grafana-dashboards/assignment4-support.json" | indent 4 }}
 {{ . }}
 {{- end }}

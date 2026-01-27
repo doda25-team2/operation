@@ -1,165 +1,255 @@
-# Operation: Run the App + Model Service with Docker Compose
+# SMS Checker Operations
+ Deployment and infrastructure configurations for the SMS Spam Checker - a machine learning application that classifies text messages as spam or legitimate (ham).
 
-This repository provides a simple docker compose setup to run the two services used in the project:
+## Related repositories
+
+| Repository | Description | Tech Stack |
+|------------|-------------|------------|
+| [**app**](https://github.com/doda25-team2/app) | Frontend web application | Spring Boot + Thymeleaf |
+| [**model-service**](https://github.com/doda25-team2/model-service) | ML inference service | Python |
+| [**lib-version**](https://github.com/doda25-team2/lib-version) | Shared utilities and version management | Java |
 
 
-**Quick start**
 
-1. Make sure Docker is running on your machine.
-2. From this repository root run:
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Local Development](#local-development)
+  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+  - [Customizing Images](#customizing-images)
+- [Production Deployment (Kubernetes)](#production-deployment-kubernetes)
+  - [Option 1: Vagrant (Full 3-node cluster)](#option-1-vagrant-full-3-node-cluster)
+  - [Option 2: Minikube (Lightweight local cluster)](#option-2-minikube-lightweight-local-cluster)
+  - [Option 3: Existing Kubernetes Cluster](#option-3-existing-kubernetes-cluster)
+- [Understanding the Setup](#understanding-the-setup)
+  - [Network Architecture (Vagrant)](#network-architecture-vagrant)
+  - [What Gets Installed](#what-gets-installed)
+  - [Canary Deployment](#canary-deployment)
+- [Monitoring and Metrics](#monitoring-and-metrics)
+- [Documentation](#documentation)
+
+---
+
+## Getting Started
+
+First, clone this repository:
 
 ```bash
+git clone git@github.com:doda25-team2/operation.git sms-checker-operations
+cd sms-checker-operations
+```
+
+Choose your deployment approach:
+- **For local development and testing**: Use [Docker Compose](#quick-start-with-docker-compose) - fastest and simplest
+- **For production-like environment**: Use [Kubernetes](#production-deployment-kubernetes) - full observability, service mesh, and monitoring
+
+---
+
+## Local Development
+
+### Quick Start with Docker Compose
+
+The fastest way to run the application locally.
+
+```bash
+# Run the containers
 docker compose up -d
 ```
 
-3. Open your browser at `http://localhost:8080` to access the `app` frontend.
+Access the application at http://localhost:8080/sms
 
-To stop the services:
+![](./docs/imgs/sms-checker.gif)
 
-```bash
-docker compose down
-```
+To stop: `docker compose down`
 
-**Rebuilding / developing locally**
+### Customizing Images
 
-If you need to build the images locally (for development or after changes), build and tag the images and then restart the compose stack.
-
-Example (build locally and run):
+By default, the compose file uses the latest published images. To override versions:
 
 ```bash
-# build app image
-cd app
-docker build -t ghcr.io/doda25-team2/app:latest .
-
-# build model-service image
-cd ../model-service
-docker build -t ghcr.io/doda25-team2/model-service:latest .
-
-# go back to repo root and start compose 
-cd ../operation
-docker compose up -d --build
+cp .env.example .env
+# Edit .env to set specific image tags
+docker compose up -d
 ```
 
-## Deployment with Kubernetes
+---
 
-This application is deployed using a single Helm chart located in the `operation/` folder.  
-It installs all microservices (app, model) along with their Services and Ingress routing.
+## Production Deployment (Kubernetes)
 
-### Prerequisites
-- A running Kubernetes cluster (Docker Desktop, Minikube, Kind, etc.)
-- NGINX Ingress Controller installed
-    - ```bash
-        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-        helm install ingress-nginx ingress-nginx/ingress-nginx
-- Add `127.0.0.1 sms-checker.local` to /etc/hosts.
-- To bring up the services run:
-    ```helm upgrade --install operation ./deployment/```
-- To view logs:
-    ```kubectl logs <pod-name> -f```
+### Option 1: Vagrant (Full 3-node cluster)
 
-### Access the application
-- App UI: http://sms-checker.local/
-- Model API: http://sms-checker.local/predict
-- App Metrics: http://sms-checker.local/metrics
+Creates a complete Kubernetes cluster with Istio, Prometheus, and Grafana. Takes ~10-15 minutes.
 
-### Access the Kubernetes Dashboard
+**Requirements:**
+- Vagrant and VirtualBox installed
+- At least 14GB free RAM
 
-Add the following to your hosts file:
-```
-192.168.56.95  dashboard.local
-```
-
-Where `192.168.56.95` is the Nginx Ingress Controller's LoadBalancer IP.
-
-Then navigate to `https://dashboard.local` in your browser.
-
-Create a token for the `admin-user` service account to log in:
+**Steps:**
 
 ```bash
+# Start the cluster
+vagrant up
+
+# Set up kubectl access from your host
+export KUBECONFIG=$(pwd)/admin.conf
+
+# Verify the cluster
+kubectl get nodes
+
+# Deploy the application
+helm upgrade --install operation ./deployment
+
+# Add to /etc/hosts:
+# 192.168.56.90   sms-checker.local
+# 192.168.56.90   sms-checker-prerelease.local
+# 192.168.56.95   grafana.local
+# 192.168.56.95   dashboard.local
+```
+
+**Access the application:**
+- App: http://sms-checker.local/sms
+- Grafana: http://grafana.local (admin/admin)
+- Kubernetes Dashboard: https://dashboard.local
+
+**Note:** When visiting the app in a browser, you'll see the **stable version**. To test the canary version, send requests with the `x-user-id` header (see Canary Deployment section below).
+
+**AlertManager** (NodePort only - find the port):
+```bash
+kubectl get svc operation-kube-prometheus-alertmanager -n default
+# Then access: http://192.168.56.100:<PORT>
+```
+
+**Kubernetes Dashboard login:**
+```bash
+# Get a token
 vagrant ssh ctrl --command "kubectl -n kubernetes-dashboard create token admin-user"
+
+# Then visit https://dashboard.local and paste the token
 ```
 
-Paste the token into the login page of the dashboard and sign in.
+### Option 2: Minikube (Lightweight local cluster)
 
-## Monitoring with Prometheus and Grafana
+**Requirements:**
+- Minikube, kubectl, and Helm installed
+- Docker running
 
-The Helm chart includes **kube-prometheus-stack** which deploys Prometheus, Grafana, and AlertManager for monitoring.
-
-### Custom Application Metrics
-
-The **app service** exposes custom Prometheus metrics at `/metrics`:
-- `sms_classification_requests_total{service="frontend"}` - Total classification requests
-- `sms_classification_results_total{result="spam|ham"}` - Classification results by type
-- `sms_current_message_length_chars{service="frontend",type="current"}` - Current message length (Gauge)
-- `sms_classification_duration_milliseconds{service="frontend",operation="classify"}` - Response time distribution (Histogram)
-- `sms_message_length_chars{service="frontend",metric_type="histogram"}` - Message length distribution (Histogram)
-
-**Note:** The model-service does NOT expose metrics. Only the app service has custom metrics as per A3 requirements.
-
-These metrics are automatically discovered by Prometheus via ServiceMonitor and can be queried in Prometheus or visualized in Grafana.
-
-### Accessing Prometheus, Grafana, and AlertManager
-
-All three are deployed as NodePort services:
+**Steps:**
 
 ```bash
-# Get service ports
-kubectl get svc -n operation | grep -E 'grafana|prometheus|alertmanager'
+# Start Minikube
+minikube start --driver=docker --cni=calico
+minikube addons enable ingress
+
+# Install Istio
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.25.2 sh -
+istio-1.25.2/bin/istioctl install -y
+
+# Deploy the app
+helm upgrade --install operation ./deployment
+
+# Add to /etc/hosts:
+# 127.0.0.1 sms-checker.local
+
+# Start the tunnel (keep running in a separate terminal)
+minikube tunnel
 ```
 
-**Access URLs (using Vagrant cluster IPs):**
-- **Grafana**: http://192.168.56.100:31765 (credentials: admin/admin)
-- **Prometheus**: http://192.168.56.100:<PROMETHEUS_NODEPORT>
-- **AlertManager**: http://192.168.56.100:30903
+Access at http://sms-checker.local
 
-### Prometheus Metrics
+### Option 3: Existing Kubernetes Cluster
 
-The app service exposes custom Prometheus-format metrics at `/metrics` endpoint. All metrics are implemented manually (not using Prometheus client libraries) to meet course requirements.
-
-**Query metrics in Grafana:**
-1. Navigate to Explore (compass icon)
-2. Enter metric name (e.g., `sms_classification_requests_total`)
-3. Click "Run query" to visualize
-
-**Example queries:**
-```promql
-# Current request rate (requests per minute)
-rate(sms_classification_requests_total[1m]) * 60
-
-# Spam detection percentage
-sum(rate(sms_classification_results_total{result="spam"}[5m]))
-/ sum(rate(sms_classification_results_total[5m])) * 100
-
-# 95th percentile classification response time
-histogram_quantile(0.95, rate(sms_classification_duration_milliseconds_bucket[5m]))
-```
-
-### AlertManager and Webhook Alerts
-
-AlertManager is configured to send webhook notifications when critical conditions are detected.
-
-**PrometheusRule:** The `HighRequestRate` alert triggers when the service receives more than 10 requests per minute for 10 consecutive seconds.
-
-**Alert Configuration:**
-- **Alert Name**: HighRequestRate
-- **Condition**: `rate(sms_classification_requests_total[1m]) * 60 > 10`
-- **Duration**: 10 seconds
-- **Severity**: critical
-
-**Webhook Configuration:** Alerts are sent to a webhook endpoint at `http://localhost:5001/webhook`. This allows for flexible alert handling and integration with external systems (Slack, PagerDuty, custom services, etc.).
-
-**Testing Alerts:**
-
-Generate sustained traffic to trigger the alert:
+If you already have a Kubernetes cluster with Istio installed:
 
 ```bash
-for i in {1..60}; do curl -s -X POST http://sms-checker.local/sms -H "Content-Type: application/json" -d '{"sms":"Test"}' > /dev/null & sleep 1; done
+helm upgrade --install operation ./deployment
 ```
 
-This sends 60 requests over 60 seconds (60 req/min), which exceeds the 10 req/min threshold. Within 10-20 seconds, check AlertManager to see the firing alert:
+Make sure to configure your DNS or /etc/hosts to point the application hostname to your Istio Ingress Gateway IP.
 
-**AlertManager UI**: http://192.168.56.100:30903/#/alerts
+---
 
-The alert will automatically resolve when traffic drops below the threshold.
+## Understanding the Setup
 
-**Note:** The webhook endpoint `http://localhost:5001/webhook` is configured but not required to be running. Alerts will still appear in the AlertManager UI. Later we can implement a simple receiver service on port 5001, if we want to receive webhook notifications!
+### Network Architecture (Vagrant)
+
+When using Vagrant, you get 3 VMs:
+- `ctrl` (192.168.56.100) - Kubernetes control plane
+- `node-1` (192.168.56.101) - Worker node
+- `node-2` (192.168.56.102) - Worker node
+
+The Istio Ingress Gateway gets assigned IP `192.168.56.95` by MetalLB. This is why you add `192.168.56.95 sms-checker.local` to your hosts file.
+
+### What Gets Installed
+
+The Vagrant provisioning automatically installs:
+- Kubernetes (kubeadm, kubelet, kubectl)
+- Flannel (pod networking)
+- MetalLB (load balancer)
+- Nginx Ingress Controller
+- Istio service mesh
+- Kubernetes Dashboard
+
+The Helm chart (`./deployment`) installs:
+- Application and model service deployments
+- Istio traffic management (Gateway, VirtualService, DestinationRule)
+- Prometheus and Grafana (via kube-prometheus-stack)
+- Custom dashboards and alerts
+
+### Canary Deployment
+
+The application uses Istio for A/B testing. Traffic is routed based on the `x-user-id` header:
+- User IDs ending in "0" go to the **canary version** (~10%)
+- All other IDs go to the **stable version** (~90%)
+- Browser visits (no header) default to **stable version**
+
+**Current versions:**
+- Stable: `ghcr.io/doda25-team2/app:latest`
+- Canary: `ghcr.io/doda25-team2/app:v1.3.1`
+
+Test different versions:
+```bash
+# Stable version
+curl -H "x-user-id: user123" http://sms-checker.local/sms
+
+# Canary version (ID ends in 0)
+curl -H "x-user-id: user0" http://sms-checker.local/sms
+```
+
+---
+
+## Monitoring and Metrics
+
+The app exposes custom Prometheus metrics at `/metrics`:
+- `sms_classification_requests_total` - Total requests
+- `sms_classification_results_total{result}` - Results by type (spam/ham)
+- `sms_current_message_length_chars` - Current message length
+- `sms_classification_duration_milliseconds` - Response times
+- `sms_message_length_chars` - Message length distribution
+
+View these in Grafana at http://grafana.local (credentials: admin/admin).
+
+Main dashboards:
+- SMS metrics
+![SMS Metrics Dashboard](./docs/imgs/sms-metrics-grafana.png)
+
+- A4 Experiment: Stable vs Canary
+![Grafana Dashboard showing A/B test results](./docs/imgs/stable-vs-canary-grafana.png)
+For experiment results you can refer to [docs/continuous-experimentation.md](./docs/continuous-experimentation.md)
+
+**Troubleshooting:** If Grafana shows "Prometheus datasource not found":
+1. Go to Configuration → Data sources
+2. Click "Add data source" → select "Prometheus"
+3. URL: `http://operation-kube-prometheus-prometheus.default:9090`
+4. Access: Server (default)
+5. Click "Save & Test"
+
+This can happen due to a race condition where Grafana starts before the sidecar provisions the datasource.
+
+---
+
+## Documentation
+
+For detailed architecture and design information, see:
+- [docs/deployment.md](./docs/deployment.md) - Complete deployment architecture
+- [docs/continuous-experimentation.md](./docs/continuous-experimentation.md) - A/B testing setup
+- [docs/extension.md](./docs/extension.md) - Proposed improvements

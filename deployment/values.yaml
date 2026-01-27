@@ -77,12 +77,15 @@ ingress:
   hosts:
     - host: sms-checker.local
       paths:
-        - path: /predict
-          service: model-service
-          port: 8081
         - path: /
           service: app
           port: 80
+        - path: /sms
+          service: app
+          port: 80
+        - path: /apidocs
+          service: model-service
+          port: 8081
         - path: /metrics
           service: app
           port: 80
@@ -192,6 +195,7 @@ tolerations: []
 affinity: {}
 
 istio:
+  enabled: true
   host: "sms-checker.local"
   # Ingress gateway configuration - the name/label used by your cluster's ingress gateway
   # Default is 'ingressgateway' which matches istio=ingressgateway selector
@@ -200,11 +204,15 @@ istio:
   canary:
     enabled: true
     replicaCount: 1
-    stableWeight: 90
-    canaryWeight: 10
+    # Regex to match x-user-id header for canary routing (e.g., ".*0$" routes ~10% of users)
+    headerRoutingRegex: ".*0$"
     image:
       repository: ghcr.io/doda25-team2/app
       tag: v1.3.1
+    modelImage:
+      repository: ghcr.io/doda25-team2/model-service
+      tag: latest
+    host: "sms-checker-prerelease.local"
 
 # Prometheus 
 prometheus:
@@ -232,6 +240,11 @@ kube-prometheus-stack:
     adminPassword: admin
     service:
       type: NodePort
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.local
   alertmanager:
     enabled: true
     service:
