@@ -1,29 +1,53 @@
 # SMS Checker Operations
+ Deployment and infrastructure configurations for the SMS Spam Checker - a machine learning application that classifies text messages as spam or legitimate (ham).
 
-Operations repository for the SMS Spam Checker application. This repository contains deployment configurations for Docker Compose and Kubernetes.
+## Related repositories
 
-Related repositories:
-- [app](https://github.com/doda25-team2/app) - Frontend service
-- [model-service](https://github.com/doda25-team2/model-service) - ML backend
-- [lib-version](https://github.com/doda25-team2/lib-version) - Shared library
+| Repository | Description | Tech Stack |
+|------------|-------------|------------|
+| [**app**](https://github.com/doda25-team2/app) | Frontend web application | Spring Boot + Thymeleaf |
+| [**model-service**](https://github.com/doda25-team2/model-service) | ML inference service | Python |
+| [**lib-version**](https://github.com/doda25-team2/lib-version) | Shared utilities and version management | Java |
 
-The application has two major deployment routes:
 
-1. `Docker` → [see here](#docker-deployments)
-2. `Kubernetes` → [see here](#kubernetes-deployment)
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Local Development](#local-development)
+  - [Quick Start with Docker Compose](#quick-start-with-docker-compose)
+  - [Customizing Images](#customizing-images)
+- [Production Deployment (Kubernetes)](#production-deployment-kubernetes)
+  - [Option 1: Vagrant (Full 3-node cluster)](#option-1-vagrant-full-3-node-cluster)
+  - [Option 2: Minikube (Lightweight local cluster)](#option-2-minikube-lightweight-local-cluster)
+  - [Option 3: Existing Kubernetes Cluster](#option-3-existing-kubernetes-cluster)
+- [Understanding the Setup](#understanding-the-setup)
+  - [Network Architecture (Vagrant)](#network-architecture-vagrant)
+  - [What Gets Installed](#what-gets-installed)
+  - [Canary Deployment](#canary-deployment)
+- [Monitoring and Metrics](#monitoring-and-metrics)
+- [Documentation](#documentation)
 
 ---
 
-### Global System Requirements
+## Getting Started
 
-Irrespective of the deployment route, you must have cloned this repository and have `cd` into the repo:
+First, clone this repository:
 
-```
+```bash
 git clone git@github.com:doda25-team2/operation.git sms-checker-operations
 cd sms-checker-operations
 ```
 
-## Quick Start with Docker Compose
+Choose your deployment approach:
+- **For local development and testing**: Use [Docker Compose](#quick-start-with-docker-compose) - fastest and simplest
+- **For production-like environment**: Use [Kubernetes](#production-deployment-kubernetes) - full observability, service mesh, and monitoring
+
+---
+
+## Local Development
+
+### Quick Start with Docker Compose
 
 The fastest way to run the application locally.
 
@@ -50,7 +74,7 @@ docker compose up -d
 
 ---
 
-## Kubernetes Deployment
+## Production Deployment (Kubernetes)
 
 ### Option 1: Vagrant (Full 3-node cluster)
 
