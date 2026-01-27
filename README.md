@@ -5,6 +5,7 @@
 
 | Repository | Description | Tech Stack |
 |------------|-------------|------------|
+| [**operation**](https://github.com/doda25-team2/operation) | Deployment and infrastructure configurations | Vagrant, Ansible, Kubernetes, Helm |
 | [**app**](https://github.com/doda25-team2/app) | Frontend web application | Spring Boot + Thymeleaf |
 | [**model-service**](https://github.com/doda25-team2/model-service) | ML inference service | Python |
 | [**lib-version**](https://github.com/doda25-team2/lib-version) | Shared utilities and version management | Java |
