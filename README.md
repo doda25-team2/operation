@@ -205,10 +205,10 @@ View these in Grafana at http://grafana.local (credentials: admin/admin).
 
 Main dashboards:
 - SMS metrics
-![SMS Metrics Dashboard](/operation/docs/imgs/sms-metrics-grafana.png)
+![SMS Metrics Dashboard](./docs/imgs/sms-metrics-grafana.png)
 
 - A4 Experiment: Stable vs Canary
-![Grafana Dashboard showing A/B test results](/operation/docs/imgs/stable-vs-canary-grafana.png)
+![Grafana Dashboard showing A/B test results](./docs/imgs/stable-vs-canary-grafana.png)
 For experiment results you can refer to [docs/continuous-experimentation.md](./docs/continuous-experimentation.md)
 
 **Troubleshooting:** If Grafana shows "Prometheus datasource not found":
