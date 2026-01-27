@@ -212,6 +212,7 @@ istio:
     modelImage:
       repository: ghcr.io/doda25-team2/model-service
       tag: latest
+    host: "sms-checker-prerelease.local"
 
 # Prometheus 
 prometheus:
