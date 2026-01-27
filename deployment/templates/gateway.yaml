@@ -13,4 +13,7 @@ spec:
         protocol: HTTP
       hosts:
         - {{ .Values.istio.host | quote }}
+        {{- if and .Values.istio.canary.enabled .Values.istio.canary.host }}
+        - {{ .Values.istio.canary.host | quote }}
+        {{- end }}
 {{- end }}

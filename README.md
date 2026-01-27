@@ -100,7 +100,8 @@ kubectl get nodes
 helm upgrade --install operation ./deployment
 
 # Add to /etc/hosts:
-# 192.168.56.95   sms-checker.local
+# 192.168.56.90   sms-checker.local
+# 192.168.56.90   sms-checker-prerelease.local
 # 192.168.56.95   grafana.local
 # 192.168.56.95   dashboard.local
 ```

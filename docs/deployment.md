@@ -100,12 +100,13 @@ To facilitate local development and testing, you can deploy the application on a
    helm install deployment ./deployment
    ```
 
-4. Add the following entry to your `/etc/hosts` file to map the application hostname to the loopback address:
+4. Add the following entry to your `/etc/hosts` file to map the application hostnames to the loopback address:
 
    ```
-   127.0.0.1 sms-checker.local
-   127.0.0.1 grafana.local
+   127.0.0.1 sms-checker.local sms-checker-prerelease.local grafana.local
    ```
+
+   > **Note:** In Minikube with `minikube tunnel`, all services share the same tunnel IP. In a production Vagrant cluster, `sms-checker.local` and `sms-checker-prerelease.local` use the Istio IngressGateway IP, while `grafana.local` uses the Nginx Ingress IP.
 
 5. Wait for the pods to be in the `Running` state:
 
@@ -134,14 +135,17 @@ The cluster must have Istio installed and an Istio IngressGateway configured. Se
    helm install deployment ./deployment
    ```
 
-2. Add the following entry to your DNS or `/etc/hosts` file to map the application hostname to the appropriate IP address of your Istio IngressGateway:
+2. Add the following entries to your DNS or `/etc/hosts` file to map the hostnames to the appropriate IP addresses:
 
    ```
-   <INGRESS_GATEWAY_IP> sms-checker.local
-   <INGRESS_GATEWAY_IP> grafana.local
+   <ISTIO_GATEWAY_IP> sms-checker.local sms-checker-prerelease.local
+   <NGINX_INGRESS_IP> grafana.local
    ```
 
-   Replace `<INGRESS_GATEWAY_IP>` with the actual IP address of your Istio IngressGateway.
+   - **Istio IngressGateway** (`192.168.56.90` by default, configured in [istio-operator.yaml](./../k8s/istio-operator.yaml)): Handles traffic for `sms-checker.local` and `sms-checker-prerelease.local` via Istio's Gateway and VirtualService resources.
+   - **Nginx Ingress Controller** (`192.168.56.95` by default): Handles traffic for `grafana.local` via Kubernetes Ingress resources.
+
+   > **Important:** `sms-checker-prerelease.local` provides direct access to the canary deployment and **must** resolve to the Istio IngressGateway IP, not the Nginx Ingress IP. Using the wrong IP will result in a 404 error.
 
 3. Wait for the pods to be in the `Running` state:
 
@@ -354,6 +358,7 @@ This realizes both a **canary deployment** and a **shadow launch**:
 
 ### Hostnames
 - `sms-checker.local` – primary entry point (configured as `.Values.istio.host`)
+- A separate configurable hostname (e.g., `sms-checker-prerelease.local` via `.Values.istio.canary.host`) is available for pre-release (canary) deployments.
 
 ### Ports
 - HTTP **80**, exposed via the Istio IngressGateway
